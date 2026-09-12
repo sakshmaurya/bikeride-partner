@@ -133,3 +133,7 @@ Thumbs.db
 *.bak
 *.backup
 *~
+# Backup files
+*.backup.js
+*.backup
+*.bak
