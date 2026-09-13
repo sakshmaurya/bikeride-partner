@@ -25,26 +25,88 @@ type Props = NativeStackScreenProps<
   'Register'
 >;
 
+type RegisterOtpResponse = {
+  success?: boolean;
+  message?: string;
+  code?: string;
+};
+
 export default function RegisterScreen({
   navigation,
 }: Props) {
   const { translations } = useLanguage();
 
   const t = translations.register;
+  const errorMessages = translations.errors;
 
   const [phoneNumber, setPhoneNumber] = useState('');
   const [touched, setTouched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState('');
 
+  /*
+   * ============================================
+   * PHONE VALIDATION
+   * ============================================
+   *
+   * Indian mobile number:
+   * - Exactly 10 digits
+   * - Starts with 6, 7, 8 or 9
+   */
   const isValid =
     phoneNumber.length === 10 &&
     /^[6-9][0-9]{9}$/.test(phoneNumber);
 
+  /*
+   * ============================================
+   * PHONE CHANGE
+   * ============================================
+   */
+  const handlePhoneChange = (text: string) => {
+    const cleaned = text
+      .replace(/\D/g, '')
+      .slice(0, 10);
+
+    setPhoneNumber(cleaned);
+
+    /*
+     * Clear server error when user
+     * starts editing the phone number.
+     */
+    if (serverError) {
+      setServerError('');
+    }
+
+    /*
+     * Keep validation state clean while typing.
+     */
+    if (touched) {
+      setTouched(false);
+    }
+  };
+
+  /*
+   * ============================================
+   * REGISTER → SEND OTP
+   * ============================================
+   *
+   * Register
+   *    ↓
+   * Send OTP
+   *    ↓
+   * OTP
+   *    ↓
+   * Approved
+   *    ↓
+   * Dashboard
+   */
   const handleContinue = async () => {
     setTouched(true);
     setServerError('');
 
+    /*
+     * Don't call API for invalid number.
+     */
     if (!isValid || loading) {
       return;
     }
@@ -75,21 +137,32 @@ export default function RegisterScreen({
         },
       );
 
-      const data = await response.json();
+      /*
+       * Safely parse JSON.
+       */
+      let data: RegisterOtpResponse = {};
+
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
+      }
 
       console.log(
         '📥 Register OTP Response:',
         data,
       );
+
       console.log(
         '📊 Status:',
         response.status,
       );
 
-      // ========================================
-      // USER ALREADY EXISTS
-      // ========================================
-
+      /*
+       * ============================================
+       * ACCOUNT ALREADY EXISTS
+       * ============================================
+       */
       if (
         response.status === 409 ||
         data.code === 'ACCOUNT_EXISTS'
@@ -98,26 +171,38 @@ export default function RegisterScreen({
         return;
       }
 
-      // ========================================
-      // OTHER BACKEND ERROR
-      // ========================================
-
-      if (!response.ok || !data.success) {
+      /*
+       * ============================================
+       * OTHER BACKEND ERRORS
+       * ============================================
+       */
+      if (!response.ok || data.success === false) {
         setServerError(
-          data.message || t.sendOtp,
+          data.message ||
+            t.sendOtp ||
+            errorMessages.somethingWrong,
         );
 
         return;
       }
 
-      // ========================================
-      // OTP SENT SUCCESSFULLY
-      // ========================================
-
+      /*
+       * ============================================
+       * OTP SENT SUCCESSFULLY
+       * ============================================
+       */
       console.log(
         '✅ Registration OTP sent successfully',
       );
 
+      /*
+       * IMPORTANT:
+       * mode MUST be "register".
+       *
+       * OTP Screen will then do:
+       *
+       * Register → OTP → Approved
+       */
       navigation.navigate('OTP', {
         phoneNumber,
         mode: 'register',
@@ -129,25 +214,20 @@ export default function RegisterScreen({
       );
 
       setServerError(
-        translations.errors.network,
+        error instanceof Error
+          ? error.message
+          : errorMessages.network,
       );
     } finally {
       setLoading(false);
     }
   };
 
-  const handlePhoneChange = (text: string) => {
-    const cleaned = text
-      .replace(/\D/g, '')
-      .slice(0, 10);
-
-    setPhoneNumber(cleaned);
-
-    if (serverError) {
-      setServerError('');
-    }
-  };
-
+  /*
+   * ============================================
+   * UI
+   * ============================================
+   */
   return (
     <SafeAreaView
       style={styles.safeArea}
@@ -161,15 +241,14 @@ export default function RegisterScreen({
             : undefined
         }
       >
-        {/* ====================================== */}
         {/* HEADER */}
-        {/* ====================================== */}
 
         <View style={styles.header}>
           <Pressable
             onPress={() => navigation.goBack()}
             style={styles.backButton}
             hitSlop={12}
+            disabled={loading}
           >
             <Text style={styles.backArrow}>
               ‹
@@ -190,9 +269,7 @@ export default function RegisterScreen({
             styles.scrollContent
           }
         >
-          {/* ====================================== */}
           {/* ICON */}
-          {/* ====================================== */}
 
           <View style={styles.iconContainer}>
             <Text style={styles.icon}>
@@ -200,9 +277,7 @@ export default function RegisterScreen({
             </Text>
           </View>
 
-          {/* ====================================== */}
           {/* TITLE */}
-          {/* ====================================== */}
 
           <Text style={styles.title}>
             {t.subtitle}
@@ -212,9 +287,7 @@ export default function RegisterScreen({
             {t.description}
           </Text>
 
-          {/* ====================================== */}
           {/* FORM */}
-          {/* ====================================== */}
 
           <View style={styles.form}>
             <Text style={styles.label}>
@@ -246,6 +319,8 @@ export default function RegisterScreen({
                 maxLength={10}
                 editable={!loading}
                 style={styles.input}
+                autoCorrect={false}
+                autoCapitalize="none"
               />
             </View>
 
@@ -269,9 +344,7 @@ export default function RegisterScreen({
               </Text>
             </View>
 
-            {/* ====================================== */}
             {/* SERVER ERROR */}
-            {/* ====================================== */}
 
             {serverError ? (
               <View style={styles.serverErrorBox}>
@@ -312,9 +385,7 @@ export default function RegisterScreen({
             ) : null}
           </View>
 
-          {/* ====================================== */}
           {/* BENEFITS */}
-          {/* ====================================== */}
 
           <View style={styles.benefits}>
             <Benefit
@@ -351,9 +422,7 @@ export default function RegisterScreen({
             />
           </View>
 
-          {/* ====================================== */}
           {/* BUTTON */}
-          {/* ====================================== */}
 
           <View style={styles.buttonContainer}>
             <PrimaryButton
@@ -363,13 +432,12 @@ export default function RegisterScreen({
                   : t.createAccount
               }
               onPress={handleContinue}
-              disabled={loading}
+              disabled={!isValid || loading}
+              loading={loading}
             />
           </View>
 
-          {/* ====================================== */}
           {/* LOGIN */}
-          {/* ====================================== */}
 
           <View style={styles.loginRow}>
             <Text style={styles.loginText}>
@@ -381,6 +449,7 @@ export default function RegisterScreen({
                 navigation.navigate('Login')
               }
               hitSlop={8}
+              disabled={loading}
             >
               <Text style={styles.loginLink}>
                 {t.login}
@@ -388,9 +457,7 @@ export default function RegisterScreen({
             </Pressable>
           </View>
 
-          {/* ====================================== */}
           {/* TERMS */}
-          {/* ====================================== */}
 
           <Text style={styles.terms}>
             {t.termsPrefix}
@@ -414,9 +481,11 @@ export default function RegisterScreen({
   );
 }
 
-/* ========================================= */
-/* BENEFIT */
-/* ========================================= */
+/*
+ * ============================================
+ * BENEFIT COMPONENT
+ * ============================================
+ */
 
 interface BenefitProps {
   icon: string;
@@ -450,9 +519,11 @@ function Benefit({
   );
 }
 
-/* ========================================= */
-/* STYLES */
-/* ========================================= */
+/*
+ * ============================================
+ * STYLES
+ * ============================================
+ */
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -607,10 +678,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
 
-  /* ====================================== */
-  /* SERVER ERROR */
-  /* ====================================== */
-
   serverErrorBox: {
     marginTop: 12,
     padding: 14,
@@ -647,10 +714,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: FONT_WEIGHT.bold,
   },
-
-  /* ====================================== */
-  /* BENEFITS */
-  /* ====================================== */
 
   benefits: {
     marginTop: 32,
@@ -692,17 +755,9 @@ const styles = StyleSheet.create({
     marginTop: 3,
   },
 
-  /* ====================================== */
-  /* BUTTON */
-  /* ====================================== */
-
   buttonContainer: {
     marginTop: 12,
   },
-
-  /* ====================================== */
-  /* LOGIN */
-  /* ====================================== */
 
   loginRow: {
     marginTop: 20,
@@ -722,10 +777,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: FONT_WEIGHT.bold,
   },
-
-  /* ====================================== */
-  /* TERMS */
-  /* ====================================== */
 
   terms: {
     marginTop: 18,

@@ -28,9 +28,14 @@ export default function ApprovedScreen({
   const { translations } = useLanguage();
   const t = translations.approved;
 
- const handleStart = () => {
-  navigation.replace('Dashboard');
-};
+  /*
+   * Register flow:
+   * Register → OTP → Approved → Dashboard
+   */
+  const handleStart = () => {
+    navigation.replace('Dashboard');
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
@@ -38,6 +43,7 @@ export default function ApprovedScreen({
         showsVerticalScrollIndicator={false}
       >
         {/* Success Icon */}
+
         <View style={styles.iconWrapper}>
           <View style={styles.outerCircle}>
             <View style={styles.iconCircle}>
@@ -47,6 +53,7 @@ export default function ApprovedScreen({
         </View>
 
         {/* Heading */}
+
         <Text style={styles.title}>
           {t.youAreApproved}
         </Text>
@@ -56,9 +63,12 @@ export default function ApprovedScreen({
         </Text>
 
         {/* Status */}
+
         <View style={styles.statusCard}>
           <View style={styles.statusIcon}>
-            <Text style={styles.statusCheck}>✓</Text>
+            <Text style={styles.statusCheck}>
+              ✓
+            </Text>
           </View>
 
           <View style={styles.statusContent}>
@@ -73,15 +83,19 @@ export default function ApprovedScreen({
         </View>
 
         {/* Benefits */}
+
         <View style={styles.benefitsCard}>
           <Text style={styles.sectionTitle}>
             {t.whatsNext}
           </Text>
 
           {/* Benefit 1 */}
+
           <View style={styles.benefitRow}>
             <View style={styles.benefitIcon}>
-              <Text style={styles.emoji}>🏍️</Text>
+              <Text style={styles.emoji}>
+                🏍️
+              </Text>
             </View>
 
             <View style={styles.benefitContent}>
@@ -96,9 +110,12 @@ export default function ApprovedScreen({
           </View>
 
           {/* Benefit 2 */}
+
           <View style={styles.benefitRow}>
             <View style={styles.benefitIcon}>
-              <Text style={styles.emoji}>💰</Text>
+              <Text style={styles.emoji}>
+                💰
+              </Text>
             </View>
 
             <View style={styles.benefitContent}>
@@ -113,9 +130,12 @@ export default function ApprovedScreen({
           </View>
 
           {/* Benefit 3 */}
+
           <View style={styles.benefitRow}>
             <View style={styles.benefitIcon}>
-              <Text style={styles.emoji}>⭐</Text>
+              <Text style={styles.emoji}>
+                ⭐
+              </Text>
             </View>
 
             <View style={styles.benefitContent}>
@@ -131,6 +151,7 @@ export default function ApprovedScreen({
         </View>
 
         {/* Verification Summary */}
+
         <View style={styles.summaryCard}>
           <Text style={styles.summaryTitle}>
             {t.verificationComplete}
@@ -184,6 +205,7 @@ export default function ApprovedScreen({
         </View>
 
         {/* Bottom */}
+
         <View style={styles.bottom}>
           <PrimaryButton
             title={t.startRiding}
@@ -198,6 +220,12 @@ export default function ApprovedScreen({
     </SafeAreaView>
   );
 }
+
+/*
+ * ============================================
+ * STYLES
+ * ============================================
+ */
 
 const styles = StyleSheet.create({
   container: {
@@ -320,10 +348,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     marginBottom: SPACING.lg,
-  },
-
-  benefitRowLast: {
-    marginBottom: 0,
   },
 
   benefitIcon: {
