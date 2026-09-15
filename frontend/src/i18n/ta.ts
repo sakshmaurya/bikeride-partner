@@ -1278,11 +1278,56 @@ export const ta = {
 
     rides:
       'பயணங்கள்',
+    distance: 'தூரம்',
+    back: 'பின்செல்',
+    rideStatus: 'சவாரி நிலை',
+    customerAvatar: 'வாடிக்கையாளர் சுயவிவரம்',
+    pickupLocation: 'பிக்கப் இடம்',
+    destinationLocation: 'சேருமிடம்',
   },
 
   // ========================================
   // SPLASH
   // ========================================
+
+  profilePage: {
+    title: 'சுயவிவரம்',
+    subtitle: 'உங்கள் பார்ட்னர் கணக்கை நிர்வகிக்கவும்',
+    personalInformation: 'தனிப்பட்ட தகவல்',
+    name: 'பெயர்',
+    phone: 'தொலைபேசி',
+    email: 'மின்னஞ்சல்',
+    language: 'மொழி',
+    vehicle: 'வாகனம்',
+    type: 'வகை',
+    model: 'மாடல்',
+    year: 'ஆண்டு',
+    color: 'நிறம்',
+    registration: 'பதிவு',
+    drivingLicence: 'ஓட்டுநர் உரிமம்',
+    bankAccount: 'வங்கி கணக்கு',
+    accountHolder: 'கணக்கு வைத்திருப்பவர்',
+    accountNumber: 'கணக்கு எண்',
+    ifsc: 'IFSC',
+    bankName: 'வங்கி பெயர்',
+    documents: 'ஆவணங்கள்',
+    uploaded: 'பதிவேற்றப்பட்டது',
+    profileVerification: 'சுயவிவர சரிபார்ப்பு',
+    selfieUploaded: 'செல்ஃபி பதிவேற்றப்பட்டது',
+    selfieNotUploaded: 'செல்ஃபி பதிவேற்றப்படவில்லை',
+    notAdded: 'சேர்க்கப்படவில்லை',
+    notAvailable: 'கிடைக்கவில்லை',
+    phoneNotAvailable: 'தொலைபேசி கிடைக்கவில்லை',
+    vehicleDetailsNotAvailable: 'வாகன விவரங்கள் கிடைக்கவில்லை',
+    bankAccountNotAvailable: 'வங்கி கணக்கு கிடைக்கவில்லை',
+    noDocumentsFound: 'ஆவணங்கள் எதுவும் இல்லை',
+    loadingProfile: 'சுயவிவரம் ஏற்றப்படுகிறது...',
+    dashboard: 'முகப்பு',
+    rides: 'சவாரிகள்',
+    earnings: 'வருமானம்',
+    profile: 'சுயவிவரம்',
+    back: 'பின்செல்',
+  },
 
   splash: {
     bikeride: 'BikeRide',

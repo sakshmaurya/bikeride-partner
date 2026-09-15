@@ -1297,11 +1297,56 @@ export const te = {
 
     rides:
       'రైడ్‌లు',
+    distance: 'దూరం',
+    back: 'వెనుకకు',
+    rideStatus: 'రైడ్ స్థితి',
+    customerAvatar: 'కస్టమర్ ప్రొఫైల్',
+    pickupLocation: 'పికప్ స్థానం',
+    destinationLocation: 'గమ్యస్థానం',
   },
 
   // ========================================
   // SPLASH
   // ========================================
+
+  profilePage: {
+    title: 'ప్రొఫైల్',
+    subtitle: 'మీ పార్టనర్ ఖాతాను నిర్వహించండి',
+    personalInformation: 'వ్యక్తిగత సమాచారం',
+    name: 'పేరు',
+    phone: 'ఫోన్',
+    email: 'ఇమెయిల్',
+    language: 'భాష',
+    vehicle: 'వాహనం',
+    type: 'రకం',
+    model: 'మోడల్',
+    year: 'సంవత్సరం',
+    color: 'రంగు',
+    registration: 'రిజిస్ట్రేషన్',
+    drivingLicence: 'డ్రైవింగ్ లైసెన్స్',
+    bankAccount: 'బ్యాంక్ ఖాతా',
+    accountHolder: 'ఖాతాదారు',
+    accountNumber: 'ఖాతా నంబర్',
+    ifsc: 'IFSC',
+    bankName: 'బ్యాంక్ పేరు',
+    documents: 'పత్రాలు',
+    uploaded: 'అప్‌లోడ్ చేయబడింది',
+    profileVerification: 'ప్రొఫైల్ ధృవీకరణ',
+    selfieUploaded: 'సెల్ఫీ అప్‌లోడ్ చేయబడింది',
+    selfieNotUploaded: 'సెల్ఫీ అప్‌లోడ్ కాలేదు',
+    notAdded: 'జోడించలేదు',
+    notAvailable: 'అందుబాటులో లేదు',
+    phoneNotAvailable: 'ఫోన్ అందుబాటులో లేదు',
+    vehicleDetailsNotAvailable: 'వాహన వివరాలు అందుబాటులో లేవు',
+    bankAccountNotAvailable: 'బ్యాంక్ ఖాతా అందుబాటులో లేదు',
+    noDocumentsFound: 'పత్రాలు ఏవీ కనుగొనబడలేదు',
+    loadingProfile: 'ప్రొఫైల్ లోడ్ అవుతోంది...',
+    dashboard: 'హోమ్',
+    rides: 'రైడ్స్',
+    earnings: 'ఆదాయం',
+    profile: 'ప్రొఫైల్',
+    back: 'వెనుకకు',
+  },
 
   splash: {
     bikeride: 'BikeRide',

@@ -1074,47 +1074,82 @@ export const en = {
 
   rides: {
     title: 'My Rides',
-
     subtitle: 'Your ride activity',
 
     totalRides: 'Total Rides',
-
     completed: 'Completed',
-
     earnings: 'Earnings',
 
     rideHistory: 'Ride History',
 
     all: 'All',
-
     new: 'New',
-
     ongoing: 'Ongoing',
-
     cancelled: 'Cancelled',
 
     noRidesFound: 'No rides found',
-
     noRidesInCategory: 'There are no rides in this category yet.',
 
     rideNumber: 'Ride #{id}',
 
     pickup: 'PICKUP',
-
     destination: 'DESTINATION',
 
     customer: 'Customer',
-
     rides: 'Rides',
-
     home: 'Home',
-
     profile: 'Profile',
+    distance: 'Distance',
+
+    back: 'Back',
+    rideStatus: 'Ride status',
+    customerAvatar: 'Customer profile',
+    pickupLocation: 'Pickup location',
+    destinationLocation: 'Destination location',
   },
 
   // ========================================
   // SPLASH
   // ========================================
+
+  profilePage: {
+    title: 'Profile',
+    subtitle: 'Manage your partner account',
+    personalInformation: 'Personal Information',
+    name: 'Name',
+    phone: 'Phone',
+    email: 'Email',
+    language: 'Language',
+    vehicle: 'Vehicle',
+    type: 'Type',
+    model: 'Model',
+    year: 'Year',
+    color: 'Color',
+    registration: 'Registration',
+    drivingLicence: 'Driving Licence',
+    bankAccount: 'Bank Account',
+    accountHolder: 'Account Holder',
+    accountNumber: 'Account Number',
+    ifsc: 'IFSC',
+    bankName: 'Bank Name',
+    documents: 'Documents',
+    uploaded: 'uploaded',
+    profileVerification: 'Profile Verification',
+    selfieUploaded: 'Selfie uploaded',
+    selfieNotUploaded: 'Selfie not uploaded',
+    notAdded: 'Not added',
+    notAvailable: 'Not available',
+    phoneNotAvailable: 'Phone not available',
+    vehicleDetailsNotAvailable: 'Vehicle details not available',
+    bankAccountNotAvailable: 'Bank account not available',
+    noDocumentsFound: 'No documents found',
+    loadingProfile: 'Loading profile...',
+    dashboard: 'Home',
+    rides: 'Rides',
+    earnings: 'Earnings',
+    profile: 'Profile',
+    back: 'Back',
+  },
 
   splash: {
     bikeride: 'BikeRide',
