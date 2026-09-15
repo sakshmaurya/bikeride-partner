@@ -114,6 +114,9 @@ export const gu = {
 
     register:
       'એકાઉન્ટ બનાવો',
+
+    accountNotFound:
+      'આ નંબર માટે કોઈ એકાઉન્ટ મળ્યું નથી. ચાલુ રાખવા માટે કૃપા કરીને રજીસ્ટર કરો.',
   },
 
   // ========================================
@@ -244,6 +247,12 @@ export const gu = {
 
     enterOtp:
       '6-અંકનો OTP દાખલ કરો',
+
+    otpSentMessage:
+      'તમારા મોબાઇલ નંબર પર નવો OTP મોકલવામાં આવ્યો છે.',
+
+    changeNumber:
+      'મોબાઇલ નંબર બદલો',
   },
 
   // ========================================
@@ -275,6 +284,26 @@ export const gu = {
       description:
         'તમારા ઓળખ દસ્તાવેજો અપલોડ કરવા માટે જરૂરી છે.',
     },
+
+    location: {
+      title:
+        'સ્થાન',
+      description:
+        'રાઇડ અને સ્થાન સેવાઓ માટે જરૂરી છે.',
+    },
+
+    storage: {
+      title:
+        'સ્ટોરેજ',
+      description:
+        'દસ્તાવેજો અને મીડિયા સાચવવા માટે જરૂરી છે.',
+    },
+
+    permissionsRequired:
+      'નોંધણી ચાલુ રાખવા માટે જરૂરી પરવાનગીઓ આપો.',
+
+    unableRequestPermissions:
+      'પરવાનગીઓની વિનંતી કરવામાં અસમર્થ. કૃપા કરીને ફરી પ્રયાસ કરો.',
 
     allow:
       'પરવાનગી આપો અને ચાલુ રાખો',
@@ -350,6 +379,31 @@ export const gu = {
 
     profileSavedMessage:
       'તમારી પ્રોફાઇલ વિગતો સફળતાપૂર્વક સાચવવામાં આવી છે.',
+
+    notAvailable: 'ઉપલબ્ધ નથી',
+    notAdded: 'ઉમેરવામાં આવ્યું નથી',
+    partner: 'પાર્ટનર',
+    loadingProfile: 'પ્રોફાઇલ લોડ થઈ રહી છે...',
+    profile: 'પ્રોફાઇલ',
+    vehicle: 'વાહન',
+    bankAccount: 'બેંક એકાઉન્ટ',
+    documents: 'દસ્તાવેજો',
+    profileVerification: 'પ્રોફાઇલ ચકાસણી',
+    selfieNotUploaded: 'સેલ્ફી અપલોડ કરવામાં આવી નથી',
+    vehicleNotAvailable: 'વાહનની વિગતો ઉપલબ્ધ નથી',
+    bankNotAvailable: 'બેંક એકાઉન્ટ ઉપલબ્ધ નથી',
+    noDocumentsFound: 'કોઈ દસ્તાવેજો મળ્યા નથી',
+    documentsUploaded: '{count} અપલોડ કરવામાં આવ્યા',
+    type: 'પ્રકાર',
+    model: 'મોડેલ',
+    year: 'વર્ષ',
+    color: 'રંગ',
+    registration: 'નોંધણી',
+    drivingLicence: 'ડ્રાઇવિંગ લાઇસન્સ',
+    accountHolder: 'ખાતા ધારક',
+    accountNumber: 'એકાઉન્ટ નંબર',
+    ifsc: 'IFSC કોડ',
+    bankName: 'બેંકનું નામ',
   },
 
   // ========================================
@@ -579,6 +633,21 @@ export const gu = {
 
     selfieRequiredDesc:
       'ચાલુ રાખતા પહેલા કૃપા કરીને સેલ્ફી લો.',
+
+    cameraPermissionDenied:
+      'કેમેરાની પરવાનગી નકારી દેવામાં આવી છે. કૃપા કરીને સેટિંગ્સમાં કેમેરાની પરવાનગી સક્ષમ કરો.',
+
+    noCameraAvailable:
+      'આ ડિવાઇસ પર કોઈ કેમેરા ઉપલબ્ધ નથી.',
+
+    selfieCaptureFailed:
+      'સેલ્ફી કેપ્ચર કરવામાં નિષ્ફળ. કૃપા કરીને ફરી પ્રયાસ કરો.',
+
+    selfieUploadFailed:
+      'સેલ્ફી અપલોડ કરવામાં નિષ્ફળ. કૃપા કરીને ફરી પ્રયાસ કરો.',
+
+    selfieUploadedSuccess:
+      'સેલ્ફી સફળતાપૂર્વક અપલોડ થઈ!',
   },
 
   // ========================================
@@ -650,6 +719,15 @@ export const gu = {
       description:
         'તમારી બેંકિંગ માહિતી એન્ક્રિપ્ટેડ અને સુરક્ષિત રીતે સંગ્રહિત છે.',
     },
+
+    notAvailable:
+      'ઉપલબ્ધ નથી',
+
+    vehicle:
+      'વાહન',
+
+    bike:
+      'બાઇક',
 
     continue:
       'ચાલુ રાખો',
@@ -747,6 +825,15 @@ export const gu = {
     photoRequired:
       'વાહનનો ફોટો જરૂરી છે',
 
+    notAvailable:
+      'ઉપલબ્ધ નથી',
+
+    vehicle:
+      'વાહન',
+
+    bike:
+      'બાઇક',
+
     continue:
       'ચાલુ રાખો',
 
@@ -789,6 +876,21 @@ export const gu = {
     contact:
       'મદદ જોઈએ છે?',
 
+    underReview:
+      'સમીક્ષા હેઠળ',
+
+    applicationReview:
+      'અરજીની સમીક્ષા',
+
+    reviewInProgress:
+      'સમીક્ષા ચાલી રહી છે',
+
+    reviewTime:
+      'સમીક્ષામાં થોડો સમય લાગી શકે છે',
+
+    contactSupport:
+      'સપોર્ટનો સંપર્ક કરો',
+
     contactUs:
       'અમારી સપોર્ટ ટીમનો સંપર્ક કરો',
   },
@@ -806,6 +908,97 @@ export const gu = {
 
     description:
       'તમારું BikeRide પાર્ટનર એકાઉન્ટ મંજૂર થયું છે. હવે તમે કમાવાનું શરૂ કરી શકો છો.',
+
+
+    youAreApproved:
+      'તમને મંજૂરી મળી ગઈ છે',
+
+    congratulations:
+      'અભિનંદન!',
+
+    partnerAccountActive:
+      'તમારું પાર્ટનર એકાઉન્ટ સક્રિય છે',
+
+    readyToStart:
+      'તમે શરૂ કરવા માટે તૈયાર છો',
+
+    startRiding:
+      'રાઇડ શરૂ કરો',
+
+    welcome:
+      'સ્વાગત છે',
+
+    welcomeMessage:
+      'BikeRide પાર્ટનરમાં આપનું સ્વાગત છે',
+
+    accountVerified:
+      'તમારું એકાઉન્ટ ચકાસાયેલ છે',
+
+    documentsVerified:
+      'તમારા દસ્તાવેજો ચકાસાયેલ છે',
+
+    vehicleVerified:
+      'તમારું વાહન ચકાસાયેલ છે',
+
+    bankVerified:
+      'તમારી બેંક વિગતો ચકાસાયેલ છે',
+
+    profileComplete:
+      'તમારી પ્રોફાઇલ પૂર્ણ છે',
+
+    earnings:
+      'કમાણી શરૂ કરો અને રાઇડ્સ પૂર્ણ કરો',
+
+    support:
+      'કોઈ મદદ જોઈએ?',
+
+    contactSupport:
+      'સપોર્ટનો સંપર્ક કરો',
+
+    community:
+      'પાર્ટનર સમુદાયમાં જોડાઓ',
+
+    welcomeToCommunity:
+      'BikeRide પાર્ટનર સમુદાયમાં આપનું સ્વાગત છે',
+
+    whatsNext:
+      'આગળ શું?',
+
+    startAcceptingRides:
+      'રાઇડ સ્વીકારવાનું શરૂ કરો',
+
+    startAcceptingRidesDesc:
+      'ઓનલાઇન જાઓ અને નજીકના ગ્રાહકો પાસેથી રાઇડ વિનંતીઓ મેળવવાનું શરૂ કરો.',
+
+    earnOnEveryRide:
+      'દરેક રાઇડ પર કમાણી કરો',
+
+    earnOnEveryRideDesc:
+      'રાઇડ પૂર્ણ કરો અને તમારા પાર્ટનર એકાઉન્ટમાંથી તમારી કમાણી ટ્રૅક કરો.',
+
+    buildYourRating:
+      'તમારું રેટિંગ બનાવો',
+
+    buildYourRatingDesc:
+      'સારી સેવા આપો અને મજબૂત પાર્ટનર રેટિંગ બનાવો.',
+
+    verificationComplete:
+      'ચકાસણી પૂર્ણ',
+
+    identityDocuments:
+      'ઓળખના દસ્તાવેજો',
+
+    selfieVerification:
+      'સેલ્ફી ચકાસણી',
+
+    bankDetails:
+      'બેંક વિગતો',
+
+    vehicleDetails:
+      'વાહનની વિગતો',
+
+    verified:
+      '✓ ચકાસાયેલ',
 
     startEarning:
       'કમાવાનું શરૂ કરો',
@@ -935,6 +1128,43 @@ export const gu = {
 
     tagline:
       'સુરક્ષિત સવારી • વધુ કમાઓ',
+
+    // Additional strings
+    today:
+      'આજે',
+
+    viewAll:
+      'બધું જુઓ',
+
+    rating:
+      'રેટિંગ',
+
+    quickActions:
+      'ઝડપી ક્રિયાઓ',
+
+    myRides:
+      'મારી સવારીઓ',
+
+    identitySelfie:
+      'ઓળખ સેલ્ફી',
+
+    uploaded:
+      '✓ અપલોડ થયેલ',
+
+    notUploaded:
+      'અપલોડ થયેલ નથી',
+
+    home:
+      'હોમ',
+
+    rides:
+      'સવારીઓ',
+
+    earnings:
+      'કમાણી',
+
+    notAvailable:
+      'ઉપલબ્ધ નથી',
   },
 
   // ========================================
@@ -962,6 +1192,28 @@ export const gu = {
 
     permissionDenied:
       'પરવાનગી નકારી કાઢવામાં આવી. કૃપા કરીને સેટિંગ્સમાં પરવાનગીઓ સક્ષમ કરો.',
+
+    timeout:
+      'વિનંતીનો સમય સમાપ્ત થયો',
+
+    unauthorized:
+      'અનધિકૃત વિનંતી',
+
+    forbidden:
+      'તમને આ ક્રિયા કરવાની પરવાનગી નથી',
+
+    notFound:
+      'વિનંતી કરેલી માહિતી મળી નથી',
+
+    conflict:
+      'વિનંતીમાં વિરોધાભાસ છે',
+
+    validation:
+      'કૃપા કરીને આપેલી માહિતી તપાસો',
+
+    unavailable:
+      'સેવા હાલમાં ઉપલબ્ધ નથી',
+
   },
 
   // ========================================
@@ -970,6 +1222,10 @@ export const gu = {
 
   earnings: {
     title: 'આવક',
+    today: 'આજે',
+    week: 'આ અઠવાડિયે',
+    month: 'આ મહિને',
+    earnings: 'આવક',
     subtitle: 'તમારી આવક ટ્રેક કરો',
     totalEarnings: 'કુલ આવક',
     rides: 'સવારીઓ',
@@ -995,6 +1251,12 @@ export const gu = {
 
   rides: {
     title: 'મારી સવારીઓ',
+    all: 'બધી',
+    new: 'નવી',
+    ongoing: 'ચાલુ',
+    cancelled: 'રદ કરેલી',
+    rides: 'સવારીઓ',
+
     subtitle: 'તમારી સવારી પ્રવૃત્તિ',
     totalRides: 'કુલ સવારીઓ',
     completed: 'પૂર્ણ',

@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import {
   ActivityIndicator,
   Animated,
+  Image,
   StyleSheet,
   Text,
   View,
@@ -95,12 +96,11 @@ export default function SplashScreen({ navigation }: Props) {
           { opacity: fade, transform: [{ translateY: slide }] },
         ]}
       >
-        <View style={styles.scooterWrapper}>
-          <Text style={styles.scooter}>🛵</Text>
-        </View>
-
-        <Text style={styles.logoTitle}>{t.bikeride}</Text>
-        <Text style={styles.partner}>{t.partner}</Text>
+        <Image
+          source={require('../../assets/splash-icon.png')}
+          style={styles.splashLogo}
+          resizeMode="contain"
+        />
       </Animated.View>
 
       <View style={styles.loadingSection}>
@@ -139,27 +139,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: -35,
   },
-  scooterWrapper: {
-    width: 110,
-    height: 85,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  scooter: {
-    fontSize: 58,
-  },
-  logoTitle: {
-    color: '#FFFFFF',
-    fontSize: 32,
-    fontWeight: FONT_WEIGHT.extraBold,
-    letterSpacing: -0.5,
-    marginTop: 4,
-  },
-  partner: {
-    color: '#F5C400',
-    fontSize: 16,
-    fontWeight: FONT_WEIGHT.bold,
-    marginTop: 1,
+  splashLogo: {
+    width: 180,
+    height: 180,
   },
   loadingSection: {
     position: 'absolute',

@@ -109,6 +109,9 @@ export const hi = {
     newUser: 'BikeRide पर नए हैं?',
 
     register: 'खाता बनाएं',
+
+    accountNotFound:
+      'इस नंबर से कोई खाता नहीं मिला। कृपया जारी रखने के लिए रजिस्टर करें.',
   },
 
   // ========================================
@@ -222,6 +225,9 @@ export const hi = {
 
     otpSentMessage:
       'आपके मोबाइल नंबर पर एक नया OTP भेजा गया है।',
+
+    changeNumber:
+      'मोबाइल नंबर बदलें',
   },
 
   // ========================================
@@ -249,6 +255,22 @@ export const hi = {
       description:
         'आपके पहचान दस्तावेज़ अपलोड करने के लिए आवश्यक है।',
     },
+
+    location: {
+      title: 'स्थान',
+      description: 'सवारी और स्थान सेवाओं के लिए आवश्यक है।',
+    },
+
+    storage: {
+      title: 'स्टोरेज',
+      description: 'दस्तावेज़ और मीडिया सहेजने के लिए आवश्यक है।',
+    },
+
+    permissionsRequired:
+      'पंजीकरण जारी रखने के लिए आवश्यक अनुमतियां दें।',
+
+    unableRequestPermissions:
+      'अनुमतियों का अनुरोध करने में असमर्थ। कृपया पुनः प्रयास करें।',
 
     allow: 'अनुमति दें और जारी रखें',
 
@@ -318,6 +340,31 @@ export const hi = {
 
     profileSavedMessage:
       'आपकी प्रोफ़ाइल जानकारी सफलतापूर्वक सहेज दी गई है।',
+
+    notAvailable: 'उपलब्ध नहीं',
+    notAdded: 'जोड़ा नहीं गया',
+    partner: 'पार्टनर',
+    loadingProfile: 'प्रोफ़ाइल लोड हो रही है...',
+    profile: 'प्रोफ़ाइल',
+    vehicle: 'वाहन',
+    bankAccount: 'बैंक खाता',
+    documents: 'दस्तावेज़',
+    profileVerification: 'प्रोफ़ाइल सत्यापन',
+    selfieNotUploaded: 'सेल्फी अपलोड नहीं की गई',
+    vehicleNotAvailable: 'वाहन विवरण उपलब्ध नहीं',
+    bankNotAvailable: 'बैंक खाता उपलब्ध नहीं',
+    noDocumentsFound: 'कोई दस्तावेज़ नहीं मिले',
+    documentsUploaded: '{count} अपलोड किए गए',
+    type: 'प्रकार',
+    model: 'मॉडल',
+    year: 'वर्ष',
+    color: 'रंग',
+    registration: 'पंजीकरण',
+    drivingLicence: 'ड्राइविंग लाइसेंस',
+    accountHolder: 'खाता धारक',
+    accountNumber: 'खाता नंबर',
+    ifsc: 'IFSC कोड',
+    bankName: 'बैंक का नाम',
   },
 
   // ========================================
@@ -390,16 +437,28 @@ export const hi = {
     // UPLOAD ACTIONS
     // ----------------------------------------
 
+    uploadTitle:
+      'दस्तावेज़ अपलोड करें',
+
+    uploadDocument:
+      'दस्तावेज़ अपलोड करें',
+
     upload:
       'दस्तावेज़ अपलोड करें',
+
+    uploaded:
+      'अपलोड हो गया',
 
     uploading:
       'अपलोड हो रहा है...',
 
-    uploaded:
-      'दस्तावेज़ सफलतापूर्वक अपलोड हो गया',
+    uploadedSuccessfully:
+      'सफलतापूर्वक अपलोड हुआ',
 
     replace:
+      'बदलें',
+
+    change:
       'बदलें',
 
     remove:
@@ -415,11 +474,26 @@ export const hi = {
     // VALIDATION
     // ----------------------------------------
 
+    required:
+      'दस्तावेज़ आवश्यक हैं',
+
     requiredTitle:
       'दस्तावेज़ आवश्यक हैं',
 
     requiredMessage:
       'जारी रखने से पहले कृपया {count} और दस्तावेज़ अपलोड करें।',
+
+    documentsRequired:
+      'जारी रखने से पहले कृपया सभी आवश्यक दस्तावेज़ अपलोड करें।',
+
+    moreDocuments:
+      'कृपया और दस्तावेज़ अपलोड करें।',
+
+    document:
+      'दस्तावेज़',
+
+    documents:
+      'दस्तावेज़',
 
     // ----------------------------------------
     // TIPS
@@ -440,6 +514,21 @@ export const hi = {
     // ----------------------------------------
     // SUCCESS
     // ----------------------------------------
+
+    success:
+      'दस्तावेज़ सफलतापूर्वक अपलोड हुआ',
+
+    failed:
+      'अपलोड विफल',
+
+    uploadSuccess:
+      'दस्तावेज़ सफलतापूर्वक अपलोड हुआ।',
+
+    uploadError:
+      'दस्तावेज़ अपलोड नहीं हो सका। कृपया पुनः प्रयास करें।',
+
+    uploadFailed:
+      'दस्तावेज़ अपलोड विफल। कृपया पुनः प्रयास करें।',
 
     successTitle:
       'सफलता',
@@ -466,6 +555,9 @@ export const hi = {
     noDocumentUrl:
       'अपलोड सफल हुआ लेकिन सर्वर ने दस्तावेज़ का URL नहीं दिया।',
 
+    missingUrl:
+      'अपलोड किए गए दस्तावेज़ का URL उपलब्ध नहीं है।',
+
     invalidResponse:
       'सर्वर ने अमान्य प्रतिक्रिया दी।',
 
@@ -476,6 +568,9 @@ export const hi = {
       'दस्तावेज़ लोड करने में असमर्थ',
 
     loadErrorMessage:
+      'कृपया पुनः प्रयास करें।',
+
+    tryAgain:
       'कृपया पुनः प्रयास करें।',
 
     // ----------------------------------------
@@ -497,6 +592,9 @@ export const hi = {
 
     ok:
       'ठीक है',
+
+    uploadMoreDocuments:
+      'और दस्तावेज़ अपलोड करें',
   },
 
   // ========================================
@@ -544,6 +642,21 @@ export const hi = {
 
     selfieRequiredDesc:
       'जारी रखने से पहले कृपया सेल्फी लें।',
+
+    cameraPermissionDenied:
+      'कैमरा अनुमति अस्वीकृत है। कृपया सेटिंग्स में कैमरा अनुमति सक्षम करें।',
+
+    noCameraAvailable:
+      'इस डिवाइस पर कोई कैमरा उपलब्ध नहीं है।',
+
+    selfieCaptureFailed:
+      'सेल्फी कैप्चर नहीं हो सकी। कृपया पुनः प्रयास करें।',
+
+    selfieUploadFailed:
+      'सेल्फी अपलोड नहीं हो सकी। कृपया पुनः प्रयास करें।',
+
+    selfieUploadedSuccess:
+      'सेल्फी सफलतापूर्वक अपलोड हो गई!',
   },
 
   // ========================================
@@ -615,6 +728,15 @@ export const hi = {
       description:
         'आपकी बैंकिंग जानकारी एन्क्रिप्टेड और सुरक्षित रूप से संग्रहीत है।',
     },
+
+    notAvailable:
+      'उपलब्ध नहीं है',
+
+    vehicle:
+      'वाहन',
+
+    bike:
+      'बाइक',
 
     continue:
       'जारी रखें',
@@ -712,6 +834,15 @@ export const hi = {
     photoRequired:
       'वाहन फोटो आवश्यक है',
 
+    notAvailable:
+      'उपलब्ध नहीं है',
+
+    vehicle:
+      'वाहन',
+
+    bike:
+      'बाइक',
+
     continue:
       'जारी रखें',
 
@@ -754,6 +885,21 @@ export const hi = {
     contact:
       'मदद चाहिए?',
 
+    underReview:
+      'समीक्षा के तहत',
+
+    applicationReview:
+      'आवेदन की समीक्षा',
+
+    reviewInProgress:
+      'आपके आवेदन की समीक्षा की जा रही है',
+
+    reviewTime:
+      'इसमें आमतौर पर 1-2 कार्य दिवस लगते हैं',
+
+    contactSupport:
+      'सहायता से संपर्क करें',
+
     contactUs:
       'हमारी सहायता टीम से संपर्क करें',
   },
@@ -777,6 +923,63 @@ export const hi = {
 
     goDashboard:
       'डैशबोर्ड पर जाएं',
+
+    youAreApproved:
+      'आप स्वीकृत हैं!',
+
+    congratulations:
+      'बधाई हो! आपका BikeRide पार्टनर खाता सफलतापूर्वक सत्यापित और स्वीकृत हो गया है।',
+
+    partnerAccountActive:
+      'पार्टनर खाता सक्रिय',
+
+    readyToStart:
+      'अब आप BikeRide के साथ सवारियां स्वीकार करना और कमाना शुरू कर सकते हैं।',
+
+    whatsNext:
+      'अब आगे क्या?',
+
+    startAcceptingRides:
+      'सवारियां स्वीकार करना शुरू करें',
+
+    startAcceptingRidesDesc:
+      'ऑनलाइन जाएं और आसपास के ग्राहकों से सवारी अनुरोध प्राप्त करना शुरू करें।',
+
+    earnOnEveryRide:
+      'हर सवारी पर कमाएं',
+
+    earnOnEveryRideDesc:
+      'सवारियां पूरी करें और अपने पार्टनर खाते से अपनी कमाई ट्रैक करें।',
+
+    buildYourRating:
+      'अपनी रेटिंग बढ़ाएं',
+
+    buildYourRatingDesc:
+      'बेहतरीन सेवा प्रदान करें और अच्छी पार्टनर रेटिंग बनाएं।',
+
+    verificationComplete:
+      'सत्यापन पूरा हुआ',
+
+    identityDocuments:
+      'पहचान दस्तावेज़',
+
+    selfieVerification:
+      'सेल्फी सत्यापन',
+
+    bankDetails:
+      'बैंक विवरण',
+
+    vehicleDetails:
+      'वाहन विवरण',
+
+    verified:
+      '✓ सत्यापित',
+
+    startRiding:
+      'सवारी शुरू करें',
+
+    welcomeToCommunity:
+      'BikeRide पार्टनर समुदाय में आपका स्वागत है!',
   },
 
   // ========================================
@@ -900,6 +1103,43 @@ export const hi = {
 
     tagline:
       'सुरक्षित सवारी • अधिक कमाएं',
+
+    // Additional strings
+    today:
+      'आज',
+
+    viewAll:
+      'सभी देखें',
+
+    rating:
+      'रेटिंग',
+
+    quickActions:
+      'त्वरित कार्रवाइयां',
+
+    myRides:
+      'मेरी सवारियां',
+
+    identitySelfie:
+      'पहचान सेल्फी',
+
+    uploaded:
+      '✓ अपलोड किया गया',
+
+    notUploaded:
+      'अपलोड नहीं किया गया',
+
+    home:
+      'होम',
+
+    rides:
+      'सवारियां',
+
+    earnings:
+      'कमाई',
+
+    notAvailable:
+      'उपलब्ध नहीं',
   },
 
   // ========================================
@@ -927,6 +1167,28 @@ export const hi = {
 
     permissionDenied:
       'अनुमति अस्वीकृत। कृपया सेटिंग्स में अनुमतियां सक्षम करें।',
+
+    timeout:
+      'अनुरोध का समय समाप्त हो गया',
+
+    unauthorized:
+      'अनधिकृत अनुरोध',
+
+    forbidden:
+      'आपको यह कार्रवाई करने की अनुमति नहीं है',
+
+    notFound:
+      'अनुरोधित जानकारी नहीं मिली',
+
+    conflict:
+      'अनुरोध में विरोधाभास है',
+
+    validation:
+      'कृपया दी गई जानकारी जांचें',
+
+    unavailable:
+      'सेवा अभी उपलब्ध नहीं है',
+
   },
 
   // ========================================
@@ -935,6 +1197,10 @@ export const hi = {
 
   earnings: {
     title: 'कमाई',
+    today: 'आज',
+    week: 'इस सप्ताह',
+    month: 'इस महीने',
+    earnings: 'कमाई',
     subtitle: 'अपनी आय को ट्रैक करें',
     totalEarnings: 'कुल कमाई',
     rides: 'सवारियां',
@@ -960,6 +1226,12 @@ export const hi = {
 
   rides: {
     title: 'मेरी सवारियां',
+    all: 'सभी',
+    new: 'नई',
+    ongoing: 'चल रही',
+    cancelled: 'रद्द',
+    rides: 'सवारियां',
+
     subtitle: 'आपकी सवारी गतिविधि',
     totalRides: 'कुल सवारियां',
     completed: 'पूर्ण',

@@ -1061,6 +1061,10 @@ export const en = {
 
     nextPayoutDesc: 'Your earnings will be transferred to your registered bank account.',
 
+    earnings: 'Earnings',
+
+    home: 'Home',
+
     profile: 'Profile',
   },
 
@@ -1100,6 +1104,8 @@ export const en = {
     destination: 'DESTINATION',
 
     customer: 'Customer',
+
+    rides: 'Rides',
 
     home: 'Home',
 
