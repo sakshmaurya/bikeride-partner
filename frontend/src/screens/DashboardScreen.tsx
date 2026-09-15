@@ -1,4 +1,5 @@
 
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useEffect, useState } from 'react';
 
 import {
@@ -6,7 +7,6 @@ import {
   Image,
   Pressable,
   RefreshControl,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Switch,
@@ -79,7 +79,6 @@ export default function DashboardScreen({
   navigation,
 }: Props) {
   const { translations } = useLanguage();
-
   const t = translations.dashboard;
 
   const [user, setUser] =
@@ -119,8 +118,7 @@ export default function DashboardScreen({
       const data = await response.json();
 
       if (response.ok && data.success) {
-        const dashboard =
-          data.dashboard;
+        const dashboard = data.dashboard;
 
         setUser(dashboard.user);
         setVehicle(dashboard.vehicle);
@@ -175,16 +173,14 @@ export default function DashboardScreen({
     accountNumber: string,
   ) => {
     if (!accountNumber) {
-      return 'Not available';
+      return t.notAvailable;
     }
 
     if (accountNumber.length <= 4) {
       return `•••• ${accountNumber}`;
     }
 
-    return `•••• •••• ${accountNumber.slice(
-      -4,
-    )}`;
+    return `•••• •••• ${accountNumber.slice(-4)}`;
   };
 
   const getStatusText = () => {
@@ -208,14 +204,16 @@ export default function DashboardScreen({
     }
   };
 
+  const isApproved =
+    user?.application_status ===
+    'approved';
+
   if (loading) {
     return (
       <SafeAreaView
         style={styles.container}
       >
-        <View
-          style={styles.loading}
-        >
+        <View style={styles.loading}>
           <ActivityIndicator
             size="large"
             color={COLORS.primary}
@@ -241,9 +239,7 @@ export default function DashboardScreen({
         <Pressable
           style={styles.headerProfile}
           onPress={() =>
-            navigation.navigate(
-              'Profile',
-            )
+            navigation.navigate('Profile')
           }
         >
           {user?.selfie_uri ? (
@@ -255,7 +251,9 @@ export default function DashboardScreen({
             />
           ) : (
             <View
-              style={styles.avatarPlaceholder}
+              style={
+                styles.avatarPlaceholder
+              }
             >
               <Text
                 style={styles.avatarText}
@@ -273,7 +271,7 @@ export default function DashboardScreen({
             <Text
               style={styles.greeting}
             >
-              {t.greeting} 👋
+              {t.greeting}
             </Text>
 
             <Text
@@ -415,7 +413,11 @@ export default function DashboardScreen({
             <View
               style={styles.statIcon}
             >
-              <Text>🚕</Text>
+              <Text
+                style={styles.statIconText}
+              >
+                🏍
+              </Text>
             </View>
 
             <Text
@@ -426,6 +428,7 @@ export default function DashboardScreen({
 
             <Text
               style={styles.statLabel}
+              numberOfLines={2}
             >
               {t.todaysRides}
             </Text>
@@ -437,7 +440,11 @@ export default function DashboardScreen({
             <View
               style={styles.statIcon}
             >
-              <Text>₹</Text>
+              <Text
+                style={styles.rupeeIcon}
+              >
+                ₹
+              </Text>
             </View>
 
             <Text
@@ -448,6 +455,7 @@ export default function DashboardScreen({
 
             <Text
               style={styles.statLabel}
+              numberOfLines={2}
             >
               {t.todaysEarnings}
             </Text>
@@ -459,7 +467,11 @@ export default function DashboardScreen({
             <View
               style={styles.statIcon}
             >
-              <Text>⭐</Text>
+              <Text
+                style={styles.statIconText}
+              >
+                ★
+              </Text>
             </View>
 
             <Text
@@ -470,13 +482,14 @@ export default function DashboardScreen({
 
             <Text
               style={styles.statLabel}
+              numberOfLines={2}
             >
               {t.rating}
             </Text>
           </View>
         </View>
 
-        {/* RIDE REQUEST */}
+        {/* RIDE REQUESTS */}
 
         <View
           style={styles.sectionHeader}
@@ -489,15 +502,11 @@ export default function DashboardScreen({
 
           <Pressable
             onPress={() =>
-              navigation.navigate(
-                'Rides',
-              )
+              navigation.navigate('Rides')
             }
           >
             <Text
-              style={
-                styles.viewAll
-              }
+              style={styles.viewAll}
             >
               {t.viewAll}
             </Text>
@@ -508,22 +517,20 @@ export default function DashboardScreen({
           style={styles.requestCard}
         >
           <View
-            style={
-              styles.requestIcon
-            }
+            style={styles.requestIcon}
           >
-            <Text>📍</Text>
+            <Text
+              style={styles.requestIconText}
+            >
+              ↗
+            </Text>
           </View>
 
           <View
-            style={
-              styles.requestContent
-            }
+            style={styles.requestContent}
           >
             <Text
-              style={
-                styles.requestTitle
-              }
+              style={styles.requestTitle}
             >
               {isOnline
                 ? t.rideRequests
@@ -557,7 +564,7 @@ export default function DashboardScreen({
             >
               {isOnline
                 ? t.live
-                : 'OFF'}
+                : t.offline}
             </Text>
           </View>
         </View>
@@ -581,17 +588,20 @@ export default function DashboardScreen({
             }
           >
             <Text
-              style={
-                styles.viewAll
-              }
+              style={styles.viewAll}
             >
               {t.vehicleDetails}
             </Text>
           </Pressable>
         </View>
 
-        <View
+        <Pressable
           style={styles.vehicleCard}
+          onPress={() =>
+            navigation.navigate(
+              'VehicleDetails',
+            )
+          }
         >
           {vehicle?.vehicle_image_uri ? (
             <Image
@@ -599,9 +609,8 @@ export default function DashboardScreen({
                 uri:
                   vehicle.vehicle_image_uri,
               }}
-              style={
-                styles.vehicleImage
-              }
+              style={styles.vehicleImage}
+              resizeMode="cover"
             />
           ) : (
             <View
@@ -609,20 +618,18 @@ export default function DashboardScreen({
                 styles.vehiclePlaceholder
               }
             >
-              <Text
+              <Image
+                source={require('../../assets/icon.png')}
                 style={
-                  styles.vehicleEmoji
+                  styles.vehicleLogo
                 }
-              >
-                🏍️
-              </Text>
+                resizeMode="contain"
+              />
             </View>
           )}
 
           <View
-            style={
-              styles.vehicleInfo
-            }
+            style={styles.vehicleInfo}
           >
             <View
               style={
@@ -633,33 +640,34 @@ export default function DashboardScreen({
                 style={
                   styles.vehicleName
                 }
+                numberOfLines={1}
               >
                 {vehicle?.vehicle_model ||
-                  'Vehicle'}
+                  t.vehicleDetails}
               </Text>
 
-              <View
-                style={
-                  styles.verifiedBadge
-                }
-              >
-                <Text
+              {vehicle && (
+                <View
                   style={
-                    styles.verifiedText
+                    styles.verifiedBadge
                   }
                 >
-                  ✓ {t.verified}
-                </Text>
-              </View>
+                  <Text
+                    style={
+                      styles.verifiedText
+                    }
+                  >
+                    ✓ {t.verified}
+                  </Text>
+                </View>
+              )}
             </View>
 
             <Text
-              style={
-                styles.vehicleType
-              }
+              style={styles.vehicleType}
             >
               {vehicle?.vehicle_type ||
-                'Bike'}
+                t.notAvailable}
             </Text>
 
             <Text
@@ -668,10 +676,14 @@ export default function DashboardScreen({
               }
             >
               {vehicle?.registration_number ||
-                'Not available'}
+                t.notAvailable}
             </Text>
           </View>
-        </View>
+
+          <Text style={styles.cardArrow}>
+            ›
+          </Text>
+        </Pressable>
 
         {/* VEHICLE DETAILS */}
 
@@ -682,75 +694,53 @@ export default function DashboardScreen({
             }
           >
             <View
-              style={
-                styles.vehicleDetail
-              }
+              style={styles.vehicleDetail}
             >
               <Text
-                style={
-                  styles.detailLabel
-                }
-              >
-                Year
-              </Text>
-
-              <Text
-                style={
-                  styles.detailValue
-                }
+                style={styles.detailLabel}
               >
                 {vehicle.vehicle_year}
               </Text>
-            </View>
-
-            <View
-              style={
-                styles.vehicleDetail
-              }
-            >
-              <Text
-                style={
-                  styles.detailLabel
-                }
-              >
-                Color
-              </Text>
 
               <Text
-                style={
-                  styles.detailValue
-                }
+                style={styles.detailValue}
               >
                 {vehicle.vehicle_color}
               </Text>
             </View>
 
             <View
-              style={
-                styles.vehicleDetail
-              }
+              style={styles.vehicleDetail}
             >
               <Text
-                style={
-                  styles.detailLabel
-                }
+                style={styles.detailLabel}
               >
-                Licence
+                {t.vehicleDetails}
               </Text>
 
               <Text
-                style={
-                  styles.detailValue
-                }
+                style={styles.detailValue}
+              >
+                {vehicle.vehicle_brand ||
+                  vehicle.vehicle_model}
+              </Text>
+            </View>
+
+            <View
+              style={styles.vehicleDetail}
+            >
+              <Text
+                style={styles.detailLabel}
+              >
+                {t.verified}
+              </Text>
+
+              <Text
+                style={styles.detailValue}
               >
                 {vehicle.license_number
-                  ?.slice(-4)
-                  .padStart(
-                    vehicle
-                      .license_number
-                      .length,
-                    '•',
-                  )}
+                  ? `••••${vehicle.license_number.slice(-4)}`
+                  : t.notAvailable}
               </Text>
             </View>
           </View>
@@ -759,16 +749,26 @@ export default function DashboardScreen({
         {/* VERIFICATION */}
 
         <View
-          style={
-            styles.verificationCard
-          }
+          style={[
+            styles.verificationCard,
+            !isApproved &&
+              styles.verificationCardPending,
+          ]}
         >
           <View
-            style={
-              styles.verificationIcon
-            }
+            style={[
+              styles.verificationIcon,
+              !isApproved &&
+                styles.verificationIconPending,
+            ]}
           >
-            <Text>✓</Text>
+            <Text
+              style={
+                styles.verificationIconText
+              }
+            >
+              {isApproved ? '✓' : '•'}
+            </Text>
           </View>
 
           <View
@@ -789,10 +789,9 @@ export default function DashboardScreen({
                 styles.verificationText
               }
             >
-              {user?.application_status ===
-              'approved'
-                ? t.documentsVerified
-                : t.beingProcessed}
+              {isApproved
+                ? `${t.accountDesc} ${t.ready}`
+                : `${t.accountDesc} ${t.beingProcessed}`}
             </Text>
           </View>
         </View>
@@ -802,16 +801,123 @@ export default function DashboardScreen({
         <View
           style={styles.sectionHeader}
         >
-          <Text
-            style={styles.sectionTitle}
-          >
-            {t.account}
-          </Text>
+          <View>
+            <Text
+              style={styles.sectionTitle}
+            >
+              {t.account}
+            </Text>
+
+            <Text
+              style={styles.sectionSubtitle}
+            >
+              {t.accountInfo}
+            </Text>
+          </View>
         </View>
 
         <View
           style={styles.accountCard}
         >
+          {/* PROFILE */}
+
+          <Pressable
+            style={styles.accountRow}
+            onPress={() =>
+              navigation.navigate('Profile')
+            }
+          >
+            <View
+              style={styles.accountIcon}
+            >
+              <Text
+                style={styles.accountIconText}
+              >
+                👤
+              </Text>
+            </View>
+
+            <View
+              style={styles.accountContent}
+            >
+              <Text
+                style={styles.accountTitle}
+              >
+                {t.profile}
+              </Text>
+
+              <Text
+                style={
+                  styles.accountSubtitle
+                }
+                numberOfLines={1}
+              >
+                {user?.email ||
+                  t.manageProfile}
+              </Text>
+            </View>
+
+            <Text
+              style={styles.editText}
+            >
+              {t.manageProfile}
+            </Text>
+          </Pressable>
+
+          <View
+            style={styles.divider}
+          />
+
+          {/* VEHICLE */}
+
+          <Pressable
+            style={styles.accountRow}
+            onPress={() =>
+              navigation.navigate(
+                'VehicleDetails',
+              )
+            }
+          >
+            <View
+              style={styles.accountIcon}
+            >
+              <Image
+                source={require('../../assets/icon.png')}
+                style={styles.accountLogo}
+                resizeMode="contain"
+              />
+            </View>
+
+            <View
+              style={styles.accountContent}
+            >
+              <Text
+                style={styles.accountTitle}
+              >
+                {t.myVehicle}
+              </Text>
+
+              <Text
+                style={
+                  styles.accountSubtitle
+                }
+              >
+                {vehicle?.vehicle_model ||
+                  t.manageVehicle}
+              </Text>
+            </View>
+
+            <Text
+              style={styles.editText}
+            >
+              {t.vehicleDetails}
+            </Text>
+          </Pressable>
+
+          <View
+            style={styles.divider}
+          />
+
           {/* DOCUMENTS */}
 
           <Pressable
@@ -825,16 +931,18 @@ export default function DashboardScreen({
             <View
               style={styles.accountIcon}
             >
-              <Text>📄</Text>
+              <Text
+                style={styles.accountIconText}
+              >
+                📄
+              </Text>
             </View>
 
             <View
               style={styles.accountContent}
             >
               <Text
-                style={
-                  styles.accountTitle
-                }
+                style={styles.accountTitle}
               >
                 {t.documents}
               </Text>
@@ -844,26 +952,15 @@ export default function DashboardScreen({
                   styles.accountSubtitle
                 }
               >
-                {documents.length}{' '}
-                {t.documentsUploaded.replace(
-                  '{count}',
-                  '',
-                ).trim()}{' '}
-                •{' '}
-                {verifiedDocuments}{' '}
-                {t.documentsVerified
-                  .replace(
-                    '• {count}',
-                    '',
-                  )
-                  .trim()}
+                {documents.length} •{' '}
+                {verifiedDocuments}
               </Text>
             </View>
 
             <Text
-              style={styles.arrow}
+              style={styles.editText}
             >
-              ›
+              {t.manageDocuments}
             </Text>
           </Pressable>
 
@@ -884,16 +981,18 @@ export default function DashboardScreen({
             <View
               style={styles.accountIcon}
             >
-              <Text>🏦</Text>
+              <Text
+                style={styles.accountIconText}
+              >
+                ₹
+              </Text>
             </View>
 
             <View
               style={styles.accountContent}
             >
               <Text
-                style={
-                  styles.accountTitle
-                }
+                style={styles.accountTitle}
               >
                 {t.bankAccount}
               </Text>
@@ -902,6 +1001,7 @@ export default function DashboardScreen({
                 style={
                   styles.accountSubtitle
                 }
+                numberOfLines={1}
               >
                 {bank
                   ? `${bank.bank_account_name} • ${maskAccountNumber(
@@ -912,9 +1012,9 @@ export default function DashboardScreen({
             </View>
 
             <Text
-              style={styles.arrow}
+              style={styles.editText}
             >
-              ›
+              {t.manageBank}
             </Text>
           </Pressable>
 
@@ -927,9 +1027,7 @@ export default function DashboardScreen({
           <Pressable
             style={styles.accountRow}
             onPress={() =>
-              navigation.navigate(
-                'Selfie',
-              )
+              navigation.navigate('Selfie')
             }
           >
             <View
@@ -945,107 +1043,40 @@ export default function DashboardScreen({
                   }
                 />
               ) : (
-                <Text>🤳</Text>
+                <Text
+                  style={
+                    styles.accountIconText
+                  }
+                >
+                  •
+                </Text>
               )}
             </View>
 
-            <Text
-              style={styles.accountSubtitle}
+            <View
+              style={styles.accountContent}
             >
-              {user?.selfie_uri
-                ? t.uploaded
-                : t.notUploaded}
-            </Text>
+              <Text
+                style={styles.accountTitle}
+              >
+                {t.identitySelfie}
+              </Text>
 
-            <Text
-              style={styles.arrow}
-            >
-              ›
-            </Text>
-          </Pressable>
-        </View>
-
-        {/* QUICK ACTIONS */}
-
-        <View
-          style={styles.sectionHeader}
-        >
-          <Text
-            style={styles.sectionTitle}
-          >
-            {t.quickActions}
-          </Text>
-        </View>
-
-        <View
-          style={styles.quickActions}
-        >
-          <Pressable
-            style={styles.quickAction}
-            onPress={() =>
-              navigation.navigate(
-                'Rides',
-              )
-            }
-          >
-            <Text
-              style={styles.quickEmoji}
-            >
-              🚕
-            </Text>
+              <Text
+                style={
+                  styles.accountSubtitle
+                }
+              >
+                {user?.selfie_uri
+                  ? t.uploaded
+                  : t.notUploaded}
+              </Text>
+            </View>
 
             <Text
-              style={
-                styles.quickTitle
-              }
+              style={styles.editText}
             >
-              {t.myRides}
-            </Text>
-          </Pressable>
-
-          <Pressable
-            style={styles.quickAction}
-            onPress={() =>
-              navigation.navigate(
-                'Earnings',
-              )
-            }
-          >
-            <Text
-              style={styles.quickEmoji}
-            >
-              💰
-            </Text>
-
-            <Text
-              style={
-                styles.quickTitle
-              }
-            >
-              {t.todaysEarnings}
-            </Text>
-          </Pressable>
-
-          <Pressable
-            style={styles.quickAction}
-            onPress={() =>
-              navigation.navigate(
-                'Profile',
-              )
-            }
-          >
-            <Text
-              style={styles.quickEmoji}
-            >
-              👤
-            </Text>
-
-            <Text
-              style={
-                styles.quickTitle
-              }
-            >
-              {t.profile}
+              {t.identitySelfie}
             </Text>
           </Pressable>
         </View>
@@ -1061,11 +1092,15 @@ export default function DashboardScreen({
           >
             {t.logout}
           </Text>
+
+          <Text
+            style={styles.logoutDesc}
+          >
+            {t.logoutDesc}
+          </Text>
         </Pressable>
 
-        <Text
-          style={styles.footer}
-        >
+        <Text style={styles.footer}>
           {t.footer} • {t.tagline}
         </Text>
       </ScrollView>
@@ -1084,7 +1119,7 @@ export default function DashboardScreen({
               styles.activeNavIcon,
             ]}
           >
-            🏠
+            ⌂
           </Text>
 
           <Text
@@ -1100,13 +1135,11 @@ export default function DashboardScreen({
         <Pressable
           style={styles.navItem}
           onPress={() =>
-            navigation.navigate(
-              'Rides',
-            )
+            navigation.navigate('Rides')
           }
         >
           <Text style={styles.navIcon}>
-            🚕
+            ↗
           </Text>
 
           <Text
@@ -1119,9 +1152,7 @@ export default function DashboardScreen({
         <Pressable
           style={styles.navItem}
           onPress={() =>
-            navigation.navigate(
-              'Earnings',
-            )
+            navigation.navigate('Earnings')
           }
         >
           <Text style={styles.navIcon}>
@@ -1138,13 +1169,11 @@ export default function DashboardScreen({
         <Pressable
           style={styles.navItem}
           onPress={() =>
-            navigation.navigate(
-              'Profile',
-            )
+            navigation.navigate('Profile')
           }
         >
           <Text style={styles.navIcon}>
-            👤
+            ●
           </Text>
 
           <Text
@@ -1173,6 +1202,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     color: COLORS.textSecondary,
+    fontSize: 13,
   },
 
   header: {
@@ -1180,7 +1210,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 18,
-    paddingVertical: 12,
+    paddingVertical: 13,
     backgroundColor: COLORS.white,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.borderLight,
@@ -1193,15 +1223,15 @@ const styles = StyleSheet.create({
   },
 
   avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
   },
 
   avatarPlaceholder: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: COLORS.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
@@ -1234,13 +1264,13 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     fontSize: 10,
     fontWeight: FONT_WEIGHT.bold,
-    marginTop: 1,
+    marginTop: 2,
   },
 
   notificationButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: COLORS.surface,
     alignItems: 'center',
     justifyContent: 'center',
@@ -1262,8 +1292,8 @@ const styles = StyleSheet.create({
 
   scrollContent: {
     paddingHorizontal: 16,
-    paddingTop: 14,
-    paddingBottom: 110,
+    paddingTop: 16,
+    paddingBottom: 112,
   },
 
   onlineCard: {
@@ -1273,11 +1303,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 20,
+    marginBottom: 22,
+    borderWidth: 1,
+    borderColor: COLORS.borderLight,
   },
 
   onlineCardOnline: {
     backgroundColor: '#EAF8EF',
+    borderColor: '#D5EFDE',
   },
 
   onlineLeft: {
@@ -1325,19 +1358,26 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: COLORS.textSecondary,
     marginTop: 3,
+    lineHeight: 16,
   },
 
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 9,
+    marginBottom: 10,
   },
 
   sectionTitle: {
     fontSize: 17,
     color: COLORS.text,
     fontWeight: FONT_WEIGHT.bold,
+  },
+
+  sectionSubtitle: {
+    color: COLORS.textSecondary,
+    fontSize: 10,
+    marginTop: 2,
   },
 
   todayText: {
@@ -1354,25 +1394,36 @@ const styles = StyleSheet.create({
   statsRow: {
     flexDirection: 'row',
     gap: 9,
-    marginBottom: 20,
+    marginBottom: 22,
   },
 
   statCard: {
     flex: 1,
     backgroundColor: COLORS.white,
-    borderRadius: 15,
+    borderRadius: 16,
     padding: 13,
     borderWidth: 1,
     borderColor: COLORS.border,
+    minHeight: 112,
   },
 
   statIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     backgroundColor: COLORS.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+
+  statIconText: {
+    fontSize: 16,
+  },
+
+  rupeeIcon: {
+    color: COLORS.primary,
+    fontSize: 17,
+    fontWeight: FONT_WEIGHT.bold,
   },
 
   statValue: {
@@ -1385,27 +1436,34 @@ const styles = StyleSheet.create({
   statLabel: {
     color: COLORS.textSecondary,
     fontSize: 10,
-    marginTop: 2,
+    marginTop: 3,
+    lineHeight: 14,
   },
 
   requestCard: {
     backgroundColor: COLORS.white,
-    borderRadius: 16,
+    borderRadius: 17,
     padding: 14,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: COLORS.border,
-    marginBottom: 20,
+    marginBottom: 22,
   },
 
   requestIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
     backgroundColor: COLORS.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+
+  requestIconText: {
+    color: COLORS.primary,
+    fontSize: 22,
+    fontWeight: FONT_WEIGHT.bold,
   },
 
   requestContent: {
@@ -1428,8 +1486,8 @@ const styles = StyleSheet.create({
 
   liveBadge: {
     backgroundColor: '#EAF8EF',
-    paddingHorizontal: 8,
-    paddingVertical: 5,
+    paddingHorizontal: 9,
+    paddingVertical: 6,
     borderRadius: 10,
   },
 
@@ -1441,8 +1499,8 @@ const styles = StyleSheet.create({
 
   offlineBadge: {
     backgroundColor: COLORS.surface,
-    paddingHorizontal: 8,
-    paddingVertical: 5,
+    paddingHorizontal: 9,
+    paddingVertical: 6,
     borderRadius: 10,
   },
 
@@ -1454,36 +1512,42 @@ const styles = StyleSheet.create({
 
   vehicleCard: {
     backgroundColor: COLORS.white,
-    borderRadius: 16,
+    borderRadius: 18,
     padding: 12,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: COLORS.border,
+    marginBottom: 8,
   },
 
   vehicleImage: {
-    width: 92,
-    height: 72,
-    borderRadius: 12,
+    width: 94,
+    height: 76,
+    borderRadius: 13,
+    backgroundColor: COLORS.surface,
   },
 
   vehiclePlaceholder: {
-    width: 92,
-    height: 72,
-    borderRadius: 12,
+    width: 94,
+    height: 76,
+    borderRadius: 13,
     backgroundColor: COLORS.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
 
-  vehicleEmoji: {
-    fontSize: 30,
+  vehicleLogo: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
   },
 
   vehicleInfo: {
     flex: 1,
     marginLeft: 12,
+    minWidth: 0,
   },
 
   vehicleTitleRow: {
@@ -1493,7 +1557,7 @@ const styles = StyleSheet.create({
 
   vehicleName: {
     color: COLORS.text,
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: FONT_WEIGHT.bold,
     flex: 1,
   },
@@ -1503,6 +1567,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 6,
     paddingVertical: 4,
+    marginLeft: 5,
   },
 
   verifiedText: {
@@ -1514,7 +1579,7 @@ const styles = StyleSheet.create({
   vehicleType: {
     color: COLORS.textSecondary,
     fontSize: 11,
-    marginTop: 3,
+    marginTop: 4,
   },
 
   vehicleNumber: {
@@ -1524,12 +1589,17 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
 
+  cardArrow: {
+    color: COLORS.textLight,
+    fontSize: 26,
+    marginLeft: 5,
+  },
+
   vehicleDetails: {
     backgroundColor: COLORS.white,
-    borderRadius: 14,
-    padding: 12,
-    marginTop: 8,
-    marginBottom: 20,
+    borderRadius: 15,
+    padding: 13,
+    marginBottom: 22,
     flexDirection: 'row',
     borderWidth: 1,
     borderColor: COLORS.border,
@@ -1537,6 +1607,7 @@ const styles = StyleSheet.create({
 
   vehicleDetail: {
     flex: 1,
+    paddingHorizontal: 3,
   },
 
   detailLabel: {
@@ -1546,27 +1617,44 @@ const styles = StyleSheet.create({
 
   detailValue: {
     color: COLORS.text,
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: FONT_WEIGHT.bold,
-    marginTop: 3,
+    marginTop: 4,
   },
 
   verificationCard: {
     backgroundColor: '#EAF8EF',
-    borderRadius: 16,
+    borderRadius: 17,
     padding: 14,
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 22,
+    borderWidth: 1,
+    borderColor: '#D5EFDE',
+  },
+
+  verificationCardPending: {
+    backgroundColor: COLORS.primaryLight,
+    borderColor: COLORS.borderLight,
   },
 
   verificationIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: COLORS.white,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+
+  verificationIconPending: {
+    backgroundColor: COLORS.white,
+  },
+
+  verificationIconText: {
+    color: COLORS.success,
+    fontSize: 21,
+    fontWeight: FONT_WEIGHT.bold,
   },
 
   verificationContent: {
@@ -1584,36 +1672,49 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     fontSize: 10,
     marginTop: 3,
+    lineHeight: 15,
   },
 
   accountCard: {
     backgroundColor: COLORS.white,
-    borderRadius: 16,
+    borderRadius: 18,
     paddingHorizontal: 13,
     borderWidth: 1,
     borderColor: COLORS.border,
-    marginBottom: 20,
+    marginBottom: 22,
+    overflow: 'hidden',
   },
 
   accountRow: {
-    minHeight: 66,
+    minHeight: 74,
     flexDirection: 'row',
     alignItems: 'center',
   },
 
   accountIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 43,
+    height: 43,
+    borderRadius: 14,
     backgroundColor: COLORS.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
+  },
+
+  accountLogo: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+  },
+
+  accountIconText: {
+    fontSize: 18,
   },
 
   selfieIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
+    width: 43,
+    height: 43,
+    borderRadius: 14,
     overflow: 'hidden',
     backgroundColor: COLORS.primaryLight,
     alignItems: 'center',
@@ -1621,13 +1722,14 @@ const styles = StyleSheet.create({
   },
 
   selfieImage: {
-    width: 42,
-    height: 42,
+    width: 43,
+    height: 43,
   },
 
   accountContent: {
     flex: 1,
     marginLeft: 11,
+    minWidth: 0,
   },
 
   accountTitle: {
@@ -1642,9 +1744,13 @@ const styles = StyleSheet.create({
     marginTop: 3,
   },
 
-  arrow: {
-    color: COLORS.textLight,
-    fontSize: 25,
+  editText: {
+    color: COLORS.primary,
+    fontSize: 9,
+    fontWeight: FONT_WEIGHT.bold,
+    maxWidth: 82,
+    textAlign: 'right',
+    marginLeft: 5,
   },
 
   divider: {
@@ -1652,38 +1758,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.border,
   },
 
-  quickActions: {
-    flexDirection: 'row',
-    gap: 9,
-    marginBottom: 20,
-  },
-
-  quickAction: {
-    flex: 1,
-    backgroundColor: COLORS.white,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 15,
-    paddingVertical: 14,
-    alignItems: 'center',
-  },
-
-  quickEmoji: {
-    fontSize: 23,
-  },
-
-  quickTitle: {
-    color: COLORS.text,
-    fontSize: 10,
-    fontWeight: FONT_WEIGHT.bold,
-    marginTop: 7,
-  },
-
   logoutButton: {
-    height: 48,
-    borderRadius: 14,
+    minHeight: 58,
+    borderRadius: 15,
     borderWidth: 1,
     borderColor: '#F1CACA',
+    paddingHorizontal: 15,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: COLORS.white,
@@ -1693,6 +1773,12 @@ const styles = StyleSheet.create({
     color: '#E53935',
     fontSize: 13,
     fontWeight: FONT_WEIGHT.bold,
+  },
+
+  logoutDesc: {
+    color: COLORS.textSecondary,
+    fontSize: 10,
+    marginTop: 3,
   },
 
   footer: {
