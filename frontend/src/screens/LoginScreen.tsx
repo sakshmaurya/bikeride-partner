@@ -246,11 +246,11 @@ export default function LoginScreen({
             />
           </View>
 
-          /*
+          {/*
            * ========================================
            * PHONE VALIDATION ERROR
            * ========================================
-           */
+           */}
           {touched &&
           phone.length > 0 &&
           !isValid ? (
@@ -259,11 +259,11 @@ export default function LoginScreen({
             </Text>
           ) : null}
 
-          /*
+          {/*
            * ========================================
            * SERVER ERROR
            * ========================================
-           */
+           */}
           {serverError ? (
             <View style={styles.serverErrorBox}>
               <Text style={styles.serverErrorText}>
@@ -292,11 +292,11 @@ export default function LoginScreen({
             </View>
           ) : null}
 
-          /*
+          {/*
            * ========================================
            * BOTTOM SECTION
            * ========================================
-           */
+           */}
           <View style={styles.bottomSection}>
             <PrimaryButton
               title={
