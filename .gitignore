@@ -137,3 +137,7 @@ Thumbs.db
 *.backup.js
 *.backup
 *.bak
+
+# Expo frontend generated native folders
+/frontend/android
+/frontend/ios

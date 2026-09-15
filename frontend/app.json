@@ -13,7 +13,6 @@
       "predictiveBackGestureEnabled": false,
       "package": "com.sakshmaurya.bikeridepartner",
       "adaptiveIcon": {
-        "background": "#06245F",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       }
@@ -25,6 +24,7 @@
       [
         "expo-splash-screen",
         {
+          "image": "./assets/splash-icon.png",
           "resizeMode": "contain",
           "backgroundColor": "#06245F"
         }
