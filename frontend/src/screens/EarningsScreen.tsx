@@ -1,685 +1,685 @@
 import React, { useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
-  SafeAreaView,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
-  Pressable,
 } from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import { RootStackParamList } from '../types/navigation';
-import { COLORS } from '../theme/colors';
-import { FONT_SIZE, FONT_WEIGHT } from '../theme/fonts';
-import { RADIUS } from '../theme/dimensions';
-import { SPACING } from '../theme/spacing';
 import { useLanguage } from '../i18n';
+import { COLORS } from '../theme/colors';
+import { SPACING } from '../theme/spacing';
+import { FONT_WEIGHT } from '../theme/fonts';
+import type { RootStackParamList } from '../types/navigation';
 
-type Props = NativeStackScreenProps<
-  RootStackParamList,
-  'Earnings'
->;
+type Props = NativeStackScreenProps<RootStackParamList, 'Earnings'>;
 
 type Period = 'Today' | 'Week' | 'Month';
 
-export default function EarningsScreen({
-  navigation,
-}: Props) {
+const earningsData = {
+  Today: {
+    total: '₹1,240',
+    rides: '8',
+    distance: '48.6 km',
+    online: '6h 20m',
+  },
+  Week: {
+    total: '₹7,850',
+    rides: '42',
+    distance: '286.4 km',
+    online: '32h 15m',
+  },
+  Month: {
+    total: '₹28,450',
+    rides: '168',
+    distance: '1,124 km',
+    online: '126h 40m',
+  },
+};
+
+const breakdown = [
+  {
+    key: 'rideEarnings',
+    amount: '₹1,050',
+    icon: '↗',
+  },
+  {
+    key: 'incentives',
+    amount: '₹120',
+    icon: '★',
+  },
+  {
+    key: 'tips',
+    amount: '₹70',
+    icon: '₹',
+  },
+] as const;
+
+export default function EarningsScreen({ navigation }: Props) {
   const { translations } = useLanguage();
   const t = translations.earnings;
 
-  const [period, setPeriod] =
+  const [selectedPeriod, setSelectedPeriod] =
     useState<Period>('Today');
 
-  const earnings = {
-    Today: {
-      total: '₹1,240',
-      rides: '8',
-      distance: '48.6 km',
-      online: '6h 20m',
-    },
-    Week: {
-      total: '₹7,850',
-      rides: '42',
-      distance: '286.4 km',
-      online: '32h 15m',
-    },
-    Month: {
-      total: '₹28,450',
-      rides: '168',
-      distance: '1,124 km',
-      online: '126h 40m',
-    },
+  const current = earningsData[selectedPeriod];
+
+  const getPeriodLabel = (period: Period) => {
+    switch (period) {
+      case 'Today':
+        return t.today;
+      case 'Week':
+        return t.week;
+      case 'Month':
+        return t.month;
+    }
   };
 
-  const current = earnings[period];
-
   return (
-    <SafeAreaView style={styles.container}>
-      {/* HEADER */}
-      <View style={styles.header}>
-        <Pressable
-          onPress={() =>
-            navigation.replace('Dashboard')
-          }
-          style={styles.backButton}
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.content}
         >
-          <Text style={styles.backText}>
-            ‹
-          </Text>
-        </Pressable>
+          <View style={styles.header}>
+            <Pressable
+              style={styles.backButton}
+              onPress={() => navigation.goBack()}
+              accessibilityRole="button"
+            >
+              <Text style={styles.backIcon}>‹</Text>
+            </Pressable>
 
-        <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>
-            {t.title}
-          </Text>
+            <View style={styles.headerText}>
+              <Text style={styles.title}>{t.title}</Text>
+              <Text style={styles.subtitle}>{t.subtitle}</Text>
+            </View>
 
-          <Text style={styles.headerSubtitle}>
-            {t.subtitle}
-          </Text>
-        </View>
+            <View style={styles.headerIcon}>
+              <Text style={styles.headerIconText}>₹</Text>
+            </View>
+          </View>
 
-        <View style={styles.headerIcon}>
-          <Text style={styles.headerIconText}>
-            ₹
-          </Text>
-        </View>
-      </View>
+          <View style={styles.periodTabs}>
+            {(['Today', 'Week', 'Month'] as Period[]).map(
+              (period) => {
+                const selected = selectedPeriod === period;
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={
-          styles.content
-        }
-      >
-        {/* PERIOD */}
-        <View style={styles.periodContainer}>
-          {(
-            ['Today', 'Week', 'Month'] as Period[]
-          ).map(item => {
-            const active =
-              period === item;
+                return (
+                  <Pressable
+                    key={period}
+                    onPress={() => setSelectedPeriod(period)}
+                    style={[
+                      styles.periodTab,
+                      selected && styles.selectedPeriodTab,
+                    ]}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected }}
+                  >
+                    <Text
+                      style={[
+                        styles.periodText,
+                        selected && styles.selectedPeriodText,
+                      ]}
+                    >
+                      {getPeriodLabel(period)}
+                    </Text>
+                  </Pressable>
+                );
+              },
+            )}
+          </View>
 
-            return (
-              <Pressable
-                key={item}
-                onPress={() =>
-                  setPeriod(item)
-                }
-                style={[
-                  styles.periodButton,
-                  active
-                    ? styles.periodButtonActive
-                    : null,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.periodText,
-                    active
-                      ? styles.periodTextActive
-                      : null,
-                  ]}
-                >
-                  {item}
+          <View style={styles.heroCard}>
+            <View style={styles.heroTop}>
+              <View>
+                <Text style={styles.heroLabel}>
+                  {t.totalEarnings}
                 </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+                <Text style={styles.heroAmount}>
+                  {current.total}
+                </Text>
+              </View>
 
-        {/* TOTAL */}
-        <View style={styles.totalCard}>
-          <Text style={styles.totalLabel}>
-            {t.totalEarnings}
-          </Text>
-
-          <Text style={styles.totalAmount}>
-            {current.total}
-          </Text>
-
-          <View style={styles.positiveBadge}>
-            <Text
-              style={styles.positiveText}
-            >
-              ↑ 12.5% from previous period
-            </Text>
-          </View>
-        </View>
-
-        {/* STATS */}
-        <View style={styles.statsRow}>
-          <View style={styles.statCard}>
-            <Text style={styles.statIcon}>
-              🛵
-            </Text>
-
-            <Text style={styles.statValue}>
-              {current.rides}
-            </Text>
-
-            <Text style={styles.statLabel}>
-              {t.rides}
-            </Text>
-          </View>
-
-          <View style={styles.statCard}>
-            <Text style={styles.statIcon}>
-              📍
-            </Text>
-
-            <Text style={styles.statValue}>
-              {current.distance}
-            </Text>
-
-            <Text style={styles.statLabel}>
-              {t.distance}
-            </Text>
-          </View>
-
-          <View style={styles.statCard}>
-            <Text style={styles.statIcon}>
-              ⏱
-            </Text>
-
-            <Text style={styles.statValue}>
-              {current.online}
-            </Text>
-
-            <Text style={styles.statLabel}>
-              {t.online}
-            </Text>
-          </View>
-        </View>
-
-        {/* BREAKDOWN */}
-        <Text style={styles.sectionTitle}>
-          {t.earningsBreakdown}
-        </Text>
-
-        <View style={styles.breakdownCard}>
-          <View style={styles.breakdownRow}>
-            <View>
-              <Text
-                style={styles.breakdownTitle}
-              >
-                {t.rideEarnings}
-              </Text>
-
-              <Text
-                style={styles.breakdownSubtitle}
-              >
-                {t.rideEarningsDesc}
-              </Text>
+              <View style={styles.heroIcon}>
+                <Text style={styles.heroIconText}>₹</Text>
+              </View>
             </View>
 
-            <Text
-              style={styles.breakdownAmount}
-            >
-              {period === 'Today'
-                ? '₹1,080'
-                : period === 'Week'
-                  ? '₹6,820'
-                  : '₹24,760'}
-            </Text>
-          </View>
+            <View style={styles.heroFooter}>
+              <View style={styles.trendBadge}>
+                <Text style={styles.trendIcon}>↗</Text>
+                <Text style={styles.trendText}>12.5%</Text>
+              </View>
 
-          <View style={styles.divider} />
-
-          <View style={styles.breakdownRow}>
-            <View>
-              <Text
-                style={styles.breakdownTitle}
-              >
-                {t.incentives}
-              </Text>
-
-              <Text
-                style={styles.breakdownSubtitle}
-              >
-                {t.incentivesDesc}
+              <Text style={styles.periodLabel}>
+                {getPeriodLabel(selectedPeriod)}
               </Text>
             </View>
-
-            <Text
-              style={styles.breakdownAmount}
-            >
-              {period === 'Today'
-                ? '₹100'
-                : period === 'Week'
-                  ? '₹680'
-                  : '₹2,540'}
-            </Text>
           </View>
 
-          <View style={styles.divider} />
-
-          <View style={styles.breakdownRow}>
-            <View>
-              <Text
-                style={styles.breakdownTitle}
-              >
-                {t.tips}
-              </Text>
-
-              <Text
-                style={styles.breakdownSubtitle}
-              >
-                {t.tipsDesc}
-              </Text>
+          <View style={styles.statsGrid}>
+            <View style={styles.statCard}>
+              <View style={styles.statIcon}>
+                <Text style={styles.statIconText}>↗</Text>
+              </View>
+              <Text style={styles.statValue}>{current.rides}</Text>
+              <Text style={styles.statLabel}>{t.rides}</Text>
             </View>
 
-            <Text
-              style={styles.breakdownAmount}
-            >
-              {period === 'Today'
-                ? '₹60'
-                : period === 'Week'
-                  ? '₹350'
-                  : '₹1,150'}
-            </Text>
-          </View>
-        </View>
+            <View style={styles.statCard}>
+              <View style={styles.statIcon}>
+                <Text style={styles.statIconText}>⌁</Text>
+              </View>
+              <Text style={styles.statValue}>
+                {current.distance}
+              </Text>
+              <Text style={styles.statLabel}>{t.distance}</Text>
+            </View>
 
-        {/* PAYOUT */}
-        <Text style={styles.sectionTitle}>
-          {t.payoutInformation}
-        </Text>
-
-        <View style={styles.payoutCard}>
-          <View style={styles.payoutIcon}>
-            <Text style={styles.payoutIconText}>
-              🏦
-            </Text>
+            <View style={styles.statCard}>
+              <View style={styles.statIcon}>
+                <Text style={styles.statIconText}>◷</Text>
+              </View>
+              <Text style={styles.statValue}>{current.online}</Text>
+              <Text style={styles.statLabel}>{t.online}</Text>
+            </View>
           </View>
 
-          <View style={styles.payoutInfo}>
-            <Text style={styles.payoutTitle}>
-              {t.nextPayout}
-            </Text>
-
-            <Text
-              style={styles.payoutSubtitle}
-            >
-              {t.nextPayoutDesc}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>
+              {t.earningsBreakdown}
             </Text>
           </View>
 
-          <Text style={styles.payoutArrow}>
-            ›
-          </Text>
-        </View>
-      </ScrollView>
+          <View style={styles.breakdownCard}>
+            {breakdown.map((item, index) => (
+              <View key={item.key}>
+                <View style={styles.breakdownRow}>
+                  <View style={styles.breakdownIcon}>
+                    <Text style={styles.breakdownIconText}>
+                      {item.icon}
+                    </Text>
+                  </View>
 
-      {/* BOTTOM NAV */}
-      <View style={styles.bottomNav}>
-        <Pressable
-          style={styles.navItem}
-          onPress={() =>
-            navigation.replace('Dashboard')
-          }
-        >
-          <Text style={styles.navIcon}>
-            🏠
-          </Text>
+                  <View style={styles.breakdownInfo}>
+                    <Text style={styles.breakdownTitle}>
+                      {t[item.key]}
+                    </Text>
+                    <Text style={styles.breakdownDescription}>
+                      {t[`${item.key}Desc`]}
+                    </Text>
+                  </View>
 
-          <Text style={styles.navText}>
-            {t.home}
-          </Text>
-        </Pressable>
+                  <Text style={styles.breakdownAmount}>
+                    {item.amount}
+                  </Text>
+                </View>
 
-        <Pressable
-          style={styles.navItem}
-          onPress={() =>
-            navigation.replace('Rides')
-          }
-        >
-          <Text style={styles.navIcon}>
-            🛵
-          </Text>
+                {index < breakdown.length - 1 && (
+                  <View style={styles.rowDivider} />
+                )}
+              </View>
+            ))}
+          </View>
 
-          <Text style={styles.navText}>
-            {t.rides}
-          </Text>
-        </Pressable>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>
+              {t.payoutInformation}
+            </Text>
+          </View>
 
-        <Pressable
-          style={styles.navItemActive}
-        >
-          <Text style={styles.navIconActive}>
-            ₹
-          </Text>
+          <View style={styles.payoutCard}>
+            <View style={styles.payoutIcon}>
+              <Text style={styles.payoutIconText}>₹</Text>
+            </View>
 
-          <Text
-            style={styles.navTextActive}
+            <View style={styles.payoutContent}>
+              <Text style={styles.payoutTitle}>
+                {t.nextPayout}
+              </Text>
+              <Text style={styles.payoutDescription}>
+                {t.nextPayoutDesc}
+              </Text>
+            </View>
+          </View>
+        </ScrollView>
+
+        <View style={styles.bottomNav}>
+          <Pressable
+            style={styles.navItem}
+            onPress={() => navigation.navigate('Dashboard')}
           >
-            {t.earnings}
-          </Text>
-        </Pressable>
+            <Text style={styles.navIcon}>⌂</Text>
+            <Text style={styles.navText}>{t.home}</Text>
+          </Pressable>
 
-        <Pressable
-          style={styles.navItem}
-          onPress={() =>
-            navigation.replace('Profile')
-          }
-        >
-          <Text style={styles.navIcon}>
-            👤
-          </Text>
+          <Pressable
+            style={styles.navItem}
+            onPress={() => navigation.navigate('Rides')}
+          >
+            <Text style={styles.navIcon}>↗</Text>
+            <Text style={styles.navText}>{t.rides}</Text>
+          </Pressable>
 
-          <Text style={styles.navText}>
-            {t.profile}
-          </Text>
-        </Pressable>
+          <Pressable style={styles.navItem}>
+            <View style={styles.activeNavIcon}>
+              <Text style={styles.activeNavIconText}>₹</Text>
+            </View>
+            <Text style={styles.activeNavText}>
+              {t.earnings}
+            </Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.navItem}
+            onPress={() => navigation.navigate('Profile')}
+          >
+            <Text style={styles.navIcon}>◯</Text>
+            <Text style={styles.navText}>{t.profile}</Text>
+          </Pressable>
+        </View>
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
   },
 
+  content: {
+    paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.md,
+    paddingBottom: 110,
+  },
+
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    marginBottom: SPACING.lg,
   },
 
   backButton: {
     width: 42,
     height: 42,
-    borderRadius: 21,
-    backgroundColor: COLORS.background,
+    borderRadius: 14,
+    backgroundColor: COLORS.white,
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: SPACING.md,
+    borderWidth: 1,
+    borderColor: '#E8EAF0',
   },
 
-  backText: {
+  backIcon: {
+    fontSize: 30,
+    lineHeight: 30,
     color: COLORS.text,
-    fontSize: 34,
-    lineHeight: 36,
+    marginTop: -3,
   },
 
-  headerCenter: {
+  headerText: {
     flex: 1,
-    marginLeft: SPACING.md,
   },
 
-  headerTitle: {
+  title: {
+    fontWeight: FONT_WEIGHT.bold,
+    fontSize: 24,
     color: COLORS.text,
-    fontSize: FONT_SIZE.lg,
-    fontWeight: FONT_WEIGHT.extraBold,
   },
 
-  headerSubtitle: {
+  subtitle: {
+    fontWeight: FONT_WEIGHT.regular,
+    fontSize: 13,
     color: COLORS.textSecondary,
-    fontSize: FONT_SIZE.xs,
-    marginTop: 2,
+    marginTop: 3,
   },
 
   headerIcon: {
     width: 42,
     height: 42,
-    borderRadius: 21,
-    backgroundColor: COLORS.primaryLight,
+    borderRadius: 14,
+    backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   headerIconText: {
-    color: COLORS.primary,
-    fontSize: 22,
-    fontWeight: FONT_WEIGHT.extraBold,
+    fontWeight: FONT_WEIGHT.bold,
+    fontSize: 19,
+    color: COLORS.white,
   },
 
-  content: {
-    padding: SPACING.lg,
-    paddingBottom: 110,
-  },
-
-  periodContainer: {
+  periodTabs: {
     flexDirection: 'row',
     backgroundColor: COLORS.white,
-    borderRadius: RADIUS.lg,
+    borderRadius: 16,
     padding: 4,
+    marginBottom: SPACING.lg,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: '#E8EAF0',
   },
 
-  periodButton: {
+  periodTab: {
     flex: 1,
     alignItems: 'center',
-    paddingVertical: SPACING.sm,
-    borderRadius: RADIUS.md,
+    paddingVertical: 11,
+    borderRadius: 12,
   },
 
-  periodButtonActive: {
+  selectedPeriodTab: {
     backgroundColor: COLORS.primary,
   },
 
   periodText: {
+    fontWeight: FONT_WEIGHT.medium,
+    fontSize: 13,
     color: COLORS.textSecondary,
-    fontSize: FONT_SIZE.sm,
-    fontWeight: FONT_WEIGHT.bold,
   },
 
-  periodTextActive: {
+  selectedPeriodText: {
     color: COLORS.white,
   },
 
-  totalCard: {
+  heroCard: {
     backgroundColor: COLORS.primary,
-    borderRadius: RADIUS.lg,
-    padding: SPACING.xxl,
+    borderRadius: 24,
+    padding: SPACING.lg,
+    marginBottom: SPACING.md,
+  },
+
+  heroTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+
+  heroLabel: {
+    fontWeight: FONT_WEIGHT.medium,
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.72)',
+  },
+
+  heroAmount: {
+    fontWeight: FONT_WEIGHT.bold,
+    fontSize: 34,
+    color: COLORS.white,
+    marginTop: 5,
+  },
+
+  heroIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255,255,255,0.14)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  heroIconText: {
+    fontWeight: FONT_WEIGHT.bold,
+    fontSize: 23,
+    color: COLORS.white,
+  },
+
+  heroFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginTop: SPACING.lg,
   },
 
-  totalLabel: {
-    color: COLORS.white,
-    opacity: 0.85,
-    fontSize: FONT_SIZE.sm,
-  },
-
-  totalAmount: {
-    color: COLORS.white,
-    fontSize: 34,
-    fontWeight: FONT_WEIGHT.extraBold,
-    marginTop: SPACING.xs,
-  },
-
-  positiveBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: 'rgba(255,255,255,0.18)',
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: 5,
-    borderRadius: 20,
-    marginTop: SPACING.md,
-  },
-
-  positiveText: {
-    color: COLORS.white,
-    fontSize: FONT_SIZE.xs,
-    fontWeight: FONT_WEIGHT.bold,
-  },
-
-  statsRow: {
+  trendBadge: {
     flexDirection: 'row',
-    marginTop: SPACING.md,
-    gap: SPACING.sm,
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.14)',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 18,
+  },
+
+  trendIcon: {
+    fontWeight: FONT_WEIGHT.bold,
+    fontSize: 13,
+    color: COLORS.white,
+    marginRight: 5,
+  },
+
+  trendText: {
+    fontWeight: FONT_WEIGHT.medium,
+    fontSize: 11,
+    color: COLORS.white,
+  },
+
+  periodLabel: {
+    fontWeight: FONT_WEIGHT.regular,
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.65)',
+    marginLeft: 10,
+  },
+
+  statsGrid: {
+    flexDirection: 'row',
+    gap: 10,
+    marginBottom: SPACING.xl,
   },
 
   statCard: {
     flex: 1,
     backgroundColor: COLORS.white,
-    borderRadius: RADIUS.md,
+    borderRadius: 18,
+    padding: 13,
     borderWidth: 1,
-    borderColor: COLORS.border,
-    paddingVertical: SPACING.md,
-    alignItems: 'center',
+    borderColor: '#E8EAF0',
   },
 
   statIcon: {
-    fontSize: 18,
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    backgroundColor: '#EEF2FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 9,
+  },
+
+  statIconText: {
+    fontWeight: FONT_WEIGHT.bold,
+    fontSize: 14,
+    color: COLORS.primary,
   },
 
   statValue: {
+    fontWeight: FONT_WEIGHT.bold,
+    fontSize: 15,
     color: COLORS.text,
-    fontSize: FONT_SIZE.md,
-    fontWeight: FONT_WEIGHT.extraBold,
-    marginTop: 5,
   },
 
   statLabel: {
+    fontWeight: FONT_WEIGHT.regular,
+    fontSize: 10,
     color: COLORS.textSecondary,
-    fontSize: 9,
-    marginTop: 2,
+    marginTop: 3,
+  },
+
+  sectionHeader: {
+    marginBottom: SPACING.md,
   },
 
   sectionTitle: {
+    fontWeight: FONT_WEIGHT.bold,
+    fontSize: 19,
     color: COLORS.text,
-    fontSize: FONT_SIZE.lg,
-    fontWeight: FONT_WEIGHT.extraBold,
-    marginTop: SPACING.xxl,
-    marginBottom: SPACING.md,
   },
 
   breakdownCard: {
     backgroundColor: COLORS.white,
-    borderRadius: RADIUS.lg,
+    borderRadius: 22,
+    paddingHorizontal: SPACING.md,
+    marginBottom: SPACING.xl,
     borderWidth: 1,
-    borderColor: COLORS.border,
-    paddingHorizontal: SPACING.lg,
+    borderColor: '#E8EAF0',
   },
 
   breakdownRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: SPACING.lg,
+    paddingVertical: SPACING.md,
+  },
+
+  breakdownIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+    backgroundColor: '#EEF2FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 11,
+  },
+
+  breakdownIconText: {
+    fontWeight: FONT_WEIGHT.bold,
+    fontSize: 17,
+    color: COLORS.primary,
+  },
+
+  breakdownInfo: {
+    flex: 1,
   },
 
   breakdownTitle: {
+    fontWeight: FONT_WEIGHT.medium,
+    fontSize: 13,
     color: COLORS.text,
-    fontSize: FONT_SIZE.sm,
-    fontWeight: FONT_WEIGHT.bold,
   },
 
-  breakdownSubtitle: {
+  breakdownDescription: {
+    fontWeight: FONT_WEIGHT.regular,
+    fontSize: 10,
     color: COLORS.textSecondary,
-    fontSize: FONT_SIZE.xs,
     marginTop: 3,
   },
 
   breakdownAmount: {
-    color: COLORS.primary,
-    fontSize: FONT_SIZE.md,
-    fontWeight: FONT_WEIGHT.extraBold,
+    fontWeight: FONT_WEIGHT.bold,
+    fontSize: 14,
+    color: COLORS.text,
+    marginLeft: 8,
   },
 
-  divider: {
+  rowDivider: {
     height: 1,
-    backgroundColor: COLORS.border,
+    backgroundColor: '#ECEEF2',
   },
 
   payoutCard: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.white,
-    borderRadius: RADIUS.lg,
-    borderWidth: 1,
-    borderColor: COLORS.border,
+    borderRadius: 22,
     padding: SPACING.lg,
+    borderWidth: 1,
+    borderColor: '#E8EAF0',
   },
 
   payoutIcon: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    backgroundColor: COLORS.primaryLight,
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    backgroundColor: '#EEF2FF',
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: 12,
   },
 
   payoutIconText: {
-    fontSize: 22,
+    fontWeight: FONT_WEIGHT.bold,
+    fontSize: 20,
+    color: COLORS.primary,
   },
 
-  payoutInfo: {
+  payoutContent: {
     flex: 1,
-    marginLeft: SPACING.md,
   },
 
   payoutTitle: {
-    color: COLORS.text,
-    fontSize: FONT_SIZE.sm,
     fontWeight: FONT_WEIGHT.bold,
+    fontSize: 14,
+    color: COLORS.text,
   },
 
-  payoutSubtitle: {
-    color: COLORS.textSecondary,
-    fontSize: FONT_SIZE.xs,
+  payoutDescription: {
+    fontWeight: FONT_WEIGHT.regular,
+    fontSize: 11,
     lineHeight: 17,
-    marginTop: 3,
-  },
-
-  payoutArrow: {
     color: COLORS.textSecondary,
-    fontSize: 28,
+    marginTop: 4,
   },
 
   bottomNav: {
     position: 'absolute',
-    bottom: 0,
     left: 0,
     right: 0,
-    height: 76,
+    bottom: 0,
+    height: 78,
     backgroundColor: COLORS.white,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: '#E8EAF0',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
+    paddingHorizontal: 8,
   },
 
   navItem: {
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 1,
-  },
-
-  navItemActive: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
+    minWidth: 62,
   },
 
   navIcon: {
-    fontSize: 19,
-    opacity: 0.6,
-  },
-
-  navIconActive: {
-    fontSize: 19,
+    fontWeight: FONT_WEIGHT.bold,
+    fontSize: 20,
+    color: COLORS.textSecondary,
+    marginBottom: 3,
   },
 
   navText: {
-    color: COLORS.textSecondary,
+    fontWeight: FONT_WEIGHT.medium,
     fontSize: 10,
-    marginTop: 3,
+    color: COLORS.textSecondary,
   },
 
-  navTextActive: {
-    color: COLORS.primary,
-    fontSize: 10,
+  activeNavIcon: {
+    width: 34,
+    height: 28,
+    borderRadius: 10,
+    backgroundColor: '#EEF2FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 3,
+  },
+
+  activeNavIconText: {
     fontWeight: FONT_WEIGHT.bold,
-    marginTop: 3,
+    fontSize: 16,
+    color: COLORS.primary,
+  },
+
+  activeNavText: {
+    fontWeight: FONT_WEIGHT.bold,
+    fontSize: 10,
+    color: COLORS.primary,
   },
 });
