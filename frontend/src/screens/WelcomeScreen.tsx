@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   Dimensions,
+  Image,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -93,12 +94,14 @@ export default function WelcomeScreen({
             <Text style={styles.backArrow}>‹</Text>
           </Pressable>
 
-          {/* Logo */}
+          {/* BikeRide Logo */}
 
           <View style={styles.logo}>
-            <Text style={styles.logoText}>
-              B
-            </Text>
+            <Image
+              source={require('../../assets/icon.png')}
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
           </View>
 
           {/* Right Space */}
@@ -137,9 +140,11 @@ export default function WelcomeScreen({
 
               <View style={styles.illustrationInner}>
 
-                <Text style={styles.bikeIcon}>
-                  🏍️
-                </Text>
+                <Image
+                  source={require('../../assets/icon.png')}
+                  style={styles.bikeImage}
+                  resizeMode="contain"
+                />
 
               </View>
 
@@ -186,19 +191,25 @@ export default function WelcomeScreen({
               <Benefit
                 icon="⏰"
                 title={t.benefits.flexibleHours.title}
-                description={t.benefits.flexibleHours.description}
+                description={
+                  t.benefits.flexibleHours.description
+                }
               />
 
               <Benefit
                 icon="💰"
                 title={t.benefits.earnMore.title}
-                description={t.benefits.earnMore.description}
+                description={
+                  t.benefits.earnMore.description
+                }
               />
 
               <Benefit
                 icon="🚀"
                 title={t.benefits.easyStart.title}
-                description={t.benefits.easyStart.description}
+                description={
+                  t.benefits.easyStart.description
+                }
               />
 
             </View>
@@ -237,7 +248,6 @@ export default function WelcomeScreen({
             {/* ================================= */}
 
             <Text style={styles.terms}>
-
               {t.termsPrefix}
               {'\n'}
 
@@ -250,7 +260,6 @@ export default function WelcomeScreen({
               <Text style={styles.termsLink}>
                 {t.privacy}
               </Text>
-
             </Text>
 
           </View>
@@ -375,12 +384,14 @@ const styles = StyleSheet.create({
 
     alignItems: 'center',
     justifyContent: 'center',
+
+    overflow: 'hidden',
   },
 
-  logoText: {
-    color: COLORS.white,
-    fontSize: 20,
-    fontWeight: '900',
+  logoImage: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
   },
 
   headerRight: {
@@ -449,10 +460,14 @@ const styles = StyleSheet.create({
       width: 0,
       height: 4,
     },
+
+    overflow: 'hidden',
   },
 
-  bikeIcon: {
-    fontSize: 58,
+  bikeImage: {
+    width: 82,
+    height: 82,
+    borderRadius: 41,
   },
 
   /* ================================= */

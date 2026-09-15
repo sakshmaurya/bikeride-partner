@@ -1,5 +1,7 @@
+
 import React, { useState } from 'react';
 import {
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -69,17 +71,10 @@ export default function RegisterScreen({
 
     setPhoneNumber(cleaned);
 
-    /*
-     * Clear server error when user
-     * starts editing the phone number.
-     */
     if (serverError) {
       setServerError('');
     }
 
-    /*
-     * Keep validation state clean while typing.
-     */
     if (touched) {
       setTouched(false);
     }
@@ -89,24 +84,11 @@ export default function RegisterScreen({
    * ============================================
    * REGISTER → SEND OTP
    * ============================================
-   *
-   * Register
-   *    ↓
-   * Send OTP
-   *    ↓
-   * OTP
-   *    ↓
-   * Approved
-   *    ↓
-   * Dashboard
    */
   const handleContinue = async () => {
     setTouched(true);
     setServerError('');
 
-    /*
-     * Don't call API for invalid number.
-     */
     if (!isValid || loading) {
       return;
     }
@@ -137,9 +119,6 @@ export default function RegisterScreen({
         },
       );
 
-      /*
-       * Safely parse JSON.
-       */
       let data: RegisterOtpResponse = {};
 
       try {
@@ -195,14 +174,6 @@ export default function RegisterScreen({
         '✅ Registration OTP sent successfully',
       );
 
-      /*
-       * IMPORTANT:
-       * mode MUST be "register".
-       *
-       * OTP Screen will then do:
-       *
-       * Register → OTP → Approved
-       */
       navigation.navigate('OTP', {
         phoneNumber,
         mode: 'register',
@@ -269,12 +240,16 @@ export default function RegisterScreen({
             styles.scrollContent
           }
         >
-          {/* ICON */}
+          {/* ================================= */}
+          {/* BIKE ILLUSTRATION */}
+          {/* ================================= */}
 
           <View style={styles.iconContainer}>
-            <Text style={styles.icon}>
-              🏍️
-            </Text>
+            <Image
+              source={require('../../assets/icon.png')}
+              style={styles.bikeImage}
+              resizeMode="contain"
+            />
           </View>
 
           {/* TITLE */}
@@ -576,6 +551,12 @@ const styles = StyleSheet.create({
     paddingBottom: 35,
   },
 
+  /*
+   * ============================================
+   * BIKE LOGO / ILLUSTRATION
+   * ============================================
+   */
+
   iconContainer: {
     width: 92,
     height: 92,
@@ -584,10 +565,13 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
 
-  icon: {
-    fontSize: 42,
+  bikeImage: {
+    width: 68,
+    height: 68,
+    borderRadius: 34,
   },
 
   title: {

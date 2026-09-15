@@ -11,7 +11,12 @@
     },
     "android": {
       "predictiveBackGestureEnabled": false,
-      "package": "com.sakshmaurya.bikeridepartner"
+      "package": "com.sakshmaurya.bikeridepartner",
+      "adaptiveIcon": {
+        "background": "#06245F",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
