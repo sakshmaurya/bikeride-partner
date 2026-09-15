@@ -1,5 +1,6 @@
 import { File as ExpoFile } from 'expo-file-system';
 
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, {
   useCallback,
   useEffect,
@@ -11,7 +12,6 @@ import {
   Alert,
   Image,
   Pressable,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
