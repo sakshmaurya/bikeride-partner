@@ -217,7 +217,7 @@ export default function OTPScreen({ navigation, route }: Props) {
        * Dashboard
        */
       if (mode === 'register') {
-        navigation.replace('Approved');
+        navigation.replace('ProfileDetails');
         return;
       }
 
