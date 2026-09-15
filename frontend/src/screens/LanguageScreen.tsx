@@ -71,10 +71,22 @@ export default function LanguageScreen({
      LANGUAGE SELECT
   ===================================================== */
 
-  const handleSelectLanguage = (
+  const handleSelectLanguage = async (
     languageId: LanguageCode,
   ) => {
-    setSelectedLanguage(languageId);
+    if (isDisabled || languageId === selectedLanguage) {
+      return;
+    }
+
+    try {
+      setSelectedLanguage(languageId);
+      await setLanguage(languageId);
+    } catch (error) {
+      console.error(
+        'Language selection error:',
+        error,
+      );
+    }
   };
 
   /* =====================================================
