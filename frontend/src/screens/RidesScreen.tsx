@@ -1,31 +1,23 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
-  SafeAreaView,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   View,
-  Pressable,
 } from 'react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import { RootStackParamList } from '../types/navigation';
-import { COLORS } from '../theme/colors';
-import { FONT_SIZE, FONT_WEIGHT } from '../theme/fonts';
-import { RADIUS } from '../theme/dimensions';
-import { SPACING } from '../theme/spacing';
 import { useLanguage } from '../i18n';
+import { COLORS } from '../theme/colors';
+import { SPACING } from '../theme/spacing';
+import { FONT_WEIGHT } from '../theme/fonts';
+import type { RootStackParamList } from '../types/navigation';
 
-type Props = NativeStackScreenProps<
-  RootStackParamList,
-  'Rides'
->;
+type Props = NativeStackScreenProps<RootStackParamList, 'Rides'>;
 
-type RideStatus =
-  | 'New'
-  | 'Ongoing'
-  | 'Completed'
-  | 'Cancelled';
+type RideStatus = 'New' | 'Ongoing' | 'Completed' | 'Cancelled';
 
 type Ride = {
   id: string;
@@ -46,7 +38,7 @@ const rides: Ride[] = [
     customer: 'Rahul',
     amount: '₹145',
     distance: '6.2 km',
-    time: 'Today, 10:30 AM',
+    time: '10:30 AM',
     status: 'Completed',
   },
   {
@@ -56,7 +48,7 @@ const rides: Ride[] = [
     customer: 'Amit',
     amount: '₹185',
     distance: '8.4 km',
-    time: 'Today, 12:15 PM',
+    time: '12:15 PM',
     status: 'Completed',
   },
   {
@@ -66,7 +58,7 @@ const rides: Ride[] = [
     customer: 'Priya',
     amount: '₹95',
     distance: '4.1 km',
-    time: 'Yesterday, 6:20 PM',
+    time: '6:20 PM',
     status: 'Cancelled',
   },
 ];
@@ -79,758 +71,826 @@ const tabs: Array<'All' | RideStatus> = [
   'Cancelled',
 ];
 
-export default function RidesScreen({
-  navigation,
-}: Props) {
+const getStatusTone = (status: RideStatus) => {
+  switch (status) {
+    case 'Completed':
+      return {
+        background: '#E9F8EF',
+        text: '#1E8E4D',
+        dot: '#2EAF62',
+      };
+    case 'Ongoing':
+      return {
+        background: '#FFF4DF',
+        text: '#B77900',
+        dot: '#F2A900',
+      };
+    case 'New':
+      return {
+        background: '#E9F1FF',
+        text: '#356AE6',
+        dot: '#4A7CF3',
+      };
+    default:
+      return {
+        background: '#FDEBEC',
+        text: '#C7444E',
+        dot: '#D85B64',
+      };
+  }
+};
+
+export default function RidesScreen({ navigation }: Props) {
   const { translations } = useLanguage();
   const t = translations.rides;
 
   const [selectedTab, setSelectedTab] =
     useState<'All' | RideStatus>('All');
 
-  const filteredRides =
-    selectedTab === 'All'
-      ? rides
-      : rides.filter(
-          ride => ride.status === selectedTab,
-        );
+  const filteredRides = useMemo(() => {
+    if (selectedTab === 'All') {
+      return rides;
+    }
 
-  const getStatusStyle = (
-    status: RideStatus,
-  ) => {
-    switch (status) {
-      case 'Completed':
-        return styles.completedStatus;
+    return rides.filter((ride) => ride.status === selectedTab);
+  }, [selectedTab]);
 
-      case 'Ongoing':
-        return styles.ongoingStatus;
-
+  const getTabLabel = (tab: 'All' | RideStatus) => {
+    switch (tab) {
+      case 'All':
+        return t.all;
       case 'New':
-        return styles.newStatus;
-
+        return t.new;
+      case 'Ongoing':
+        return t.ongoing;
+      case 'Completed':
+        return t.completed;
       case 'Cancelled':
-        return styles.cancelledStatus;
-
-      default:
-        return styles.completedStatus;
+        return t.cancelled;
     }
   };
 
+  const getStatusLabel = (status: RideStatus) => {
+    switch (status) {
+      case 'New':
+        return t.new;
+      case 'Ongoing':
+        return t.ongoing;
+      case 'Completed':
+        return t.completed;
+      case 'Cancelled':
+        return t.cancelled;
+    }
+  };
+
+  const completedRides = rides.filter(
+    (ride) => ride.status === 'Completed',
+  ).length;
+
+  const totalEarnings = rides.reduce((total, ride) => {
+    if (ride.status !== 'Cancelled') {
+      return total + Number(ride.amount.replace(/[^\d]/g, ''));
+    }
+
+    return total;
+  }, 0);
+
   return (
-    <SafeAreaView style={styles.container}>
-      {/* HEADER */}
-      <View style={styles.header}>
-        <Pressable
-          onPress={() =>
-            navigation.replace('Dashboard')
-          }
-          style={styles.backButton}
-        >
-          <Text style={styles.backText}>
-            ‹
-          </Text>
-        </Pressable>
-
-        <View style={styles.headerCenter}>
-          <Text style={styles.headerTitle}>
-            {t.title}
-          </Text>
-
-          <Text style={styles.headerSubtitle}>
-            {t.subtitle}
-          </Text>
-        </View>
-
-        <View style={styles.headerIcon}>
-          <Text style={styles.headerIconText}>
-            🛵
-          </Text>
-        </View>
-      </View>
-
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={
-          styles.content
-        }
-      >
-        {/* SUMMARY */}
-        <View style={styles.summaryCard}>
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryValue}>
-              24
-            </Text>
-
-            <Text style={styles.summaryLabel}>
-              {t.totalRides}
-            </Text>
-          </View>
-
-          <View style={styles.summaryDivider} />
-
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryValue}>
-              22
-            </Text>
-
-            <Text style={styles.summaryLabel}>
-              {t.completed}
-            </Text>
-          </View>
-
-          <View style={styles.summaryDivider} />
-
-          <View style={styles.summaryItem}>
-            <Text style={styles.summaryValue}>
-              ₹3,850
-            </Text>
-
-            <Text style={styles.summaryLabel}>
-              {t.earnings}
-            </Text>
-          </View>
-        </View>
-
-        {/* FILTER */}
-        <Text style={styles.sectionTitle}>
-          {t.rideHistory}
-        </Text>
-
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
         <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={
-            styles.tabsContainer
-          }
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.content}
         >
-          {tabs.map(tab => {
-            const active =
-              selectedTab === tab;
-
-            return (
-              <Pressable
-                key={tab}
-                onPress={() =>
-                  setSelectedTab(tab)
-                }
-                style={[
-                  styles.tab,
-                  active
-                    ? styles.activeTab
-                    : null,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.tabText,
-                    active
-                      ? styles.activeTabText
-                      : null,
-                  ]}
-                >
-                  {tab}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </ScrollView>
-
-        {/* RIDES */}
-        {filteredRides.length === 0 ? (
-          <View style={styles.emptyCard}>
-            <Text style={styles.emptyIcon}>
-              🛵
-            </Text>
-
-            <Text style={styles.emptyTitle}>
-              {t.noRidesFound}
-            </Text>
-
-            <Text style={styles.emptyText}>
-              {t.noRidesInCategory}
-            </Text>
-          </View>
-        ) : (
-          filteredRides.map(ride => (
-            <View
-              key={ride.id}
-              style={styles.rideCard}
+          <View style={styles.header}>
+            <Pressable
+              style={styles.backButton}
+              onPress={() => navigation.goBack()}
+              accessibilityRole="button"
+              accessibilityLabel={t.back}
             >
-              {/* TOP */}
-              <View style={styles.rideTop}>
-                <View>
-                  <Text style={styles.rideId}>
-                    {t.rideNumber.replace('{id}', ride.id)}
-                  </Text>
+              <Text style={styles.backIcon}>‹</Text>
+            </Pressable>
 
-                  <Text style={styles.rideTime}>
-                    {ride.time}
-                  </Text>
-                </View>
+            <View style={styles.headerText}>
+              <Text style={styles.title}>{t.title}</Text>
+              <Text style={styles.subtitle}>{t.subtitle}</Text>
+            </View>
 
-                <View
-                  style={[
-                    styles.statusBadge,
-                    getStatusStyle(
-                      ride.status,
-                    ),
-                  ]}
-                >
-                  <Text
-                    style={
-                      styles.statusText
-                    }
-                  >
-                    {ride.status}
-                  </Text>
-                </View>
+            <View style={styles.headerIcon}>
+              <Text style={styles.headerIconText}>↗</Text>
+            </View>
+          </View>
+
+          <View style={styles.summaryCard}>
+            <View style={styles.summaryTop}>
+              <View>
+                <Text style={styles.summaryLabel}>{t.totalRides}</Text>
+                <Text style={styles.summaryValue}>{rides.length}</Text>
               </View>
 
-              {/* ROUTE */}
-              <View style={styles.routeContainer}>
-                <View style={styles.routeLine}>
-                  <View
-                    style={styles.pickupDot}
-                  />
-
-                  <View
-                    style={styles.routeDash}
-                  />
-
-                  <View
-                    style={styles.destinationDot}
-                  />
-                </View>
-
-                <View
-                  style={styles.routeText}
-                >
-                  <Text
-                    style={
-                      styles.locationLabel
-                    }
-                  >
-                    {t.pickup}
-                  </Text>
-
-                  <Text
-                    style={
-                      styles.locationText
-                    }
-                  >
-                    {ride.pickup}
-                  </Text>
-
-                  <View
-                    style={
-                      styles.locationGap
-                    }
-                  />
-
-                  <Text
-                    style={
-                      styles.locationLabel
-                    }
-                  >
-                    {t.destination}
-                  </Text>
-
-                  <Text
-                    style={
-                      styles.locationText
-                    }
-                  >
-                    {ride.destination}
-                  </Text>
-                </View>
-              </View>
-
-              {/* CUSTOMER */}
-              <View
-                style={styles.customerRow}
-              >
-                <View
-                  style={styles.customerAvatar}
-                >
-                  <Text>
-                    👤
-                  </Text>
-                </View>
-
-                <View
-                  style={styles.customerInfo}
-                >
-                  <Text
-                    style={
-                      styles.customerLabel
-                    }
-                  >
-                    {t.customer}
-                  </Text>
-
-                  <Text
-                    style={
-                      styles.customerName
-                    }
-                  >
-                    {ride.customer}
-                  </Text>
-                </View>
-
-                <View
-                  style={styles.amountContainer}
-                >
-                  <Text
-                    style={styles.amount}
-                  >
-                    {ride.amount}
-                  </Text>
-
-                  <Text
-                    style={styles.distance}
-                  >
-                    {ride.distance}
-                  </Text>
-                </View>
+              <View style={styles.summaryBadge}>
+                <Text style={styles.summaryBadgeText}>
+                  {completedRides} {t.completed}
+                </Text>
               </View>
             </View>
-          ))
-        )}
-      </ScrollView>
 
-      {/* BOTTOM NAV */}
-      <View style={styles.bottomNav}>
-        <Pressable
-          style={styles.navItem}
-          onPress={() =>
-            navigation.replace('Dashboard')
-          }
-        >
-          <Text style={styles.navIcon}>
-            🏠
-          </Text>
+            <View style={styles.summaryDivider} />
 
-          <Text style={styles.navText}>
-            {t.home}
-          </Text>
-        </Pressable>
+            <View style={styles.earningsRow}>
+              <View style={styles.earningsIcon}>
+                <Text style={styles.earningsIconText}>₹</Text>
+              </View>
 
-        <Pressable
-          style={styles.navItemActive}
-        >
-          <Text style={styles.navIconActive}>
-            🛵
-          </Text>
+              <View>
+                <Text style={styles.summarySmallLabel}>
+                  {t.earnings}
+                </Text>
+                <Text style={styles.earningsValue}>
+                  ₹{totalEarnings.toLocaleString('en-IN')}
+                </Text>
+              </View>
+            </View>
+          </View>
 
-          <Text
-            style={styles.navTextActive}
+          <View style={styles.sectionHeader}>
+            <View>
+              <Text style={styles.sectionTitle}>{t.rideHistory}</Text>
+              <Text style={styles.sectionSubtitle}>
+                {filteredRides.length} {t.rides}
+              </Text>
+            </View>
+          </View>
+
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.tabsContent}
           >
-            {t.rides}
-          </Text>
-        </Pressable>
+            {tabs.map((tab) => {
+              const selected = selectedTab === tab;
 
-        <Pressable
-          style={styles.navItem}
-          onPress={() =>
-            navigation.replace('Earnings')
-          }
-        >
-          <Text style={styles.navIcon}>
-            ₹
-          </Text>
+              return (
+                <Pressable
+                  key={tab}
+                  onPress={() => setSelectedTab(tab)}
+                  style={[
+                    styles.tab,
+                    selected && styles.selectedTab,
+                  ]}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected }}
+                >
+                  <Text
+                    style={[
+                      styles.tabText,
+                      selected && styles.selectedTabText,
+                    ]}
+                  >
+                    {getTabLabel(tab)}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
 
-          <Text style={styles.navText}>
-            {t.earnings}
-          </Text>
-        </Pressable>
+          <View style={styles.rideList}>
+            {filteredRides.length === 0 ? (
+              <View style={styles.emptyCard}>
+                <View style={styles.emptyIcon}>
+                  <Text style={styles.emptyIconText}>↗</Text>
+                </View>
 
-        <Pressable
-          style={styles.navItem}
-          onPress={() =>
-            navigation.replace('Profile')
-          }
-        >
-          <Text style={styles.navIcon}>
-            👤
-          </Text>
+                <Text style={styles.emptyTitle}>
+                  {t.noRidesFound}
+                </Text>
 
-          <Text style={styles.navText}>
-            {t.profile}
-          </Text>
-        </Pressable>
+                <Text style={styles.emptyText}>
+                  {t.noRidesInCategory}
+                </Text>
+              </View>
+            ) : (
+              filteredRides.map((ride) => {
+                const tone = getStatusTone(ride.status);
+
+                return (
+                  <View key={ride.id} style={styles.rideCard}>
+                    <View style={styles.rideTop}>
+                      <View>
+                        <Text style={styles.rideNumber}>
+                          {t.rideNumber.replace(
+                            '{id}',
+                            ride.id,
+                          )}
+                        </Text>
+                        <Text style={styles.rideTime}>
+                          {ride.time}
+                        </Text>
+                      </View>
+
+                      <View
+                        style={[
+                          styles.statusBadge,
+                          { backgroundColor: tone.background },
+                        ]}
+                      >
+                        <View
+                          style={[
+                            styles.statusDot,
+                            { backgroundColor: tone.dot },
+                          ]}
+                        />
+                        <Text
+                          style={[
+                            styles.statusText,
+                            { color: tone.text },
+                          ]}
+                        >
+                          {getStatusLabel(ride.status)}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View style={styles.route}>
+                      <View style={styles.routeRail}>
+                        <View
+                          style={[
+                            styles.routeDot,
+                            styles.pickupDot,
+                          ]}
+                        />
+                        <View style={styles.routeLine} />
+                        <View
+                          style={[
+                            styles.routeDot,
+                            styles.destinationDot,
+                          ]}
+                        />
+                      </View>
+
+                      <View style={styles.routeContent}>
+                        <View style={styles.locationBlock}>
+                          <Text style={styles.locationLabel}>
+                            {t.pickup}
+                          </Text>
+                          <Text
+                            style={styles.location}
+                            numberOfLines={1}
+                          >
+                            {ride.pickup}
+                          </Text>
+                        </View>
+
+                        <View style={styles.locationBlock}>
+                          <Text style={styles.locationLabel}>
+                            {t.destination}
+                          </Text>
+                          <Text
+                            style={styles.location}
+                            numberOfLines={1}
+                          >
+                            {ride.destination}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+
+                    <View style={styles.rideFooter}>
+                      <View style={styles.customerBlock}>
+                        <View style={styles.avatar}>
+                          <Text style={styles.avatarText}>
+                            {ride.customer.charAt(0)}
+                          </Text>
+                        </View>
+
+                        <View>
+                          <Text style={styles.customerLabel}>
+                            {t.customer}
+                          </Text>
+                          <Text style={styles.customerName}>
+                            {ride.customer}
+                          </Text>
+                        </View>
+                      </View>
+
+                      <View style={styles.fareBlock}>
+                        <Text style={styles.fare}>
+                          {ride.amount}
+                        </Text>
+                        <Text style={styles.distance}>
+                          {ride.distance}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                );
+              })
+            )}
+          </View>
+        </ScrollView>
+
+        <View style={styles.bottomNav}>
+          <Pressable
+            style={styles.navItem}
+            onPress={() => navigation.navigate('Dashboard')}
+          >
+            <Text style={styles.navIcon}>⌂</Text>
+            <Text style={styles.navText}>{t.home}</Text>
+          </Pressable>
+
+          <Pressable style={styles.navItem}>
+            <View style={styles.activeNavIcon}>
+              <Text style={styles.activeNavIconText}>↗</Text>
+            </View>
+            <Text style={styles.activeNavText}>{t.rides}</Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.navItem}
+            onPress={() => navigation.navigate('Earnings')}
+          >
+            <Text style={styles.navIcon}>₹</Text>
+            <Text style={styles.navText}>{t.earnings}</Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.navItem}
+            onPress={() => navigation.navigate('Profile')}
+          >
+            <Text style={styles.navIcon}>◯</Text>
+            <Text style={styles.navText}>{t.profile}</Text>
+          </Pressable>
+        </View>
       </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
   },
 
+  content: {
+    paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.md,
+    paddingBottom: 110,
+  },
+
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.md,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    marginBottom: SPACING.lg,
   },
 
   backButton: {
     width: 42,
     height: 42,
-    borderRadius: 21,
-    backgroundColor: COLORS.background,
+    borderRadius: 14,
+    backgroundColor: COLORS.white,
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: SPACING.md,
+    borderWidth: 1,
+    borderColor: '#E8EAF0',
   },
 
-  backText: {
+  backIcon: {
+    fontSize: 30,
+    lineHeight: 30,
     color: COLORS.text,
-    fontSize: 34,
-    lineHeight: 36,
+    marginTop: -3,
   },
 
-  headerCenter: {
+  headerText: {
     flex: 1,
-    marginLeft: SPACING.md,
   },
 
-  headerTitle: {
+  title: {
+    fontFamily: FONT_WEIGHT.bold,
+    fontSize: 24,
     color: COLORS.text,
-    fontSize: FONT_SIZE.lg,
-    fontWeight: FONT_WEIGHT.extraBold,
   },
 
-  headerSubtitle: {
+  subtitle: {
+    fontFamily: FONT_WEIGHT.regular,
+    fontSize: 13,
     color: COLORS.textSecondary,
-    fontSize: FONT_SIZE.xs,
-    marginTop: 2,
+    marginTop: 3,
   },
 
   headerIcon: {
     width: 42,
     height: 42,
-    borderRadius: 21,
-    backgroundColor: COLORS.primaryLight,
+    borderRadius: 14,
+    backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   headerIconText: {
     fontSize: 21,
-  },
-
-  content: {
-    padding: SPACING.lg,
-    paddingBottom: 110,
+    color: COLORS.white,
+    fontFamily: FONT_WEIGHT.bold,
   },
 
   summaryCard: {
+    backgroundColor: COLORS.primary,
+    borderRadius: 24,
+    padding: SPACING.lg,
+    marginBottom: SPACING.xl,
+  },
+
+  summaryTop: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.white,
-    borderRadius: RADIUS.lg,
-    paddingVertical: SPACING.lg,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-
-  summaryItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-
-  summaryValue: {
-    color: COLORS.text,
-    fontSize: FONT_SIZE.lg,
-    fontWeight: FONT_WEIGHT.extraBold,
+    justifyContent: 'space-between',
   },
 
   summaryLabel: {
-    color: COLORS.textSecondary,
-    fontSize: FONT_SIZE.xs,
-    marginTop: SPACING.xs,
+    fontFamily: FONT_WEIGHT.medium,
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.75)',
+  },
+
+  summaryValue: {
+    fontFamily: FONT_WEIGHT.bold,
+    fontSize: 34,
+    color: COLORS.white,
+    marginTop: 3,
+  },
+
+  summaryBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+  },
+
+  summaryBadgeText: {
+    fontFamily: FONT_WEIGHT.medium,
+    fontSize: 12,
+    color: COLORS.white,
   },
 
   summaryDivider: {
-    width: 1,
-    height: 38,
-    backgroundColor: COLORS.border,
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.16)',
+    marginVertical: SPACING.md,
   },
 
-  sectionTitle: {
-    color: COLORS.text,
-    fontSize: FONT_SIZE.lg,
-    fontWeight: FONT_WEIGHT.extraBold,
-    marginTop: SPACING.xxl,
+  earningsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+
+  earningsIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+
+  earningsIconText: {
+    fontFamily: FONT_WEIGHT.bold,
+    fontSize: 19,
+    color: COLORS.white,
+  },
+
+  summarySmallLabel: {
+    fontFamily: FONT_WEIGHT.regular,
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.72)',
+  },
+
+  earningsValue: {
+    fontFamily: FONT_WEIGHT.bold,
+    fontSize: 20,
+    color: COLORS.white,
+    marginTop: 2,
+  },
+
+  sectionHeader: {
     marginBottom: SPACING.md,
   },
 
-  tabsContainer: {
+  sectionTitle: {
+    fontFamily: FONT_WEIGHT.bold,
+    fontSize: 20,
+    color: COLORS.text,
+  },
+
+  sectionSubtitle: {
+    fontFamily: FONT_WEIGHT.regular,
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    marginTop: 3,
+  },
+
+  tabsContent: {
     paddingBottom: SPACING.md,
+    gap: 8,
   },
 
   tab: {
-    paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.sm,
+    paddingHorizontal: 17,
+    paddingVertical: 10,
     borderRadius: 22,
     backgroundColor: COLORS.white,
     borderWidth: 1,
-    borderColor: COLORS.border,
-    marginRight: SPACING.sm,
+    borderColor: '#E6E8EE',
   },
 
-  activeTab: {
+  selectedTab: {
     backgroundColor: COLORS.primary,
     borderColor: COLORS.primary,
   },
 
   tabText: {
+    fontFamily: FONT_WEIGHT.medium,
+    fontSize: 13,
     color: COLORS.textSecondary,
-    fontSize: FONT_SIZE.sm,
-    fontWeight: FONT_WEIGHT.bold,
   },
 
-  activeTabText: {
+  selectedTabText: {
     color: COLORS.white,
+  },
+
+  rideList: {
+    gap: SPACING.md,
   },
 
   rideCard: {
     backgroundColor: COLORS.white,
-    borderRadius: RADIUS.lg,
-    borderWidth: 1,
-    borderColor: COLORS.border,
+    borderRadius: 22,
     padding: SPACING.lg,
-    marginBottom: SPACING.md,
+    borderWidth: 1,
+    borderColor: '#E8EAF0',
   },
 
   rideTop: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    marginBottom: SPACING.lg,
   },
 
-  rideId: {
+  rideNumber: {
+    fontFamily: FONT_WEIGHT.bold,
+    fontSize: 14,
     color: COLORS.text,
-    fontSize: FONT_SIZE.md,
-    fontWeight: FONT_WEIGHT.bold,
   },
 
   rideTime: {
+    fontFamily: FONT_WEIGHT.regular,
+    fontSize: 12,
     color: COLORS.textSecondary,
-    fontSize: FONT_SIZE.xs,
     marginTop: 4,
   },
 
   statusBadge: {
-    paddingHorizontal: SPACING.sm,
-    paddingVertical: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 7,
     borderRadius: 20,
   },
 
-  completedStatus: {
-    backgroundColor: '#E8F5E9',
-  },
-
-  ongoingStatus: {
-    backgroundColor: '#E3F2FD',
-  },
-
-  newStatus: {
-    backgroundColor: '#FFF3E0',
-  },
-
-  cancelledStatus: {
-    backgroundColor: '#FFEBEE',
+  statusDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    marginRight: 6,
   },
 
   statusText: {
-    color: COLORS.text,
-    fontSize: FONT_SIZE.xs,
-    fontWeight: FONT_WEIGHT.bold,
+    fontFamily: FONT_WEIGHT.medium,
+    fontSize: 11,
   },
 
-  routeContainer: {
+  route: {
     flexDirection: 'row',
-    marginTop: SPACING.lg,
+    marginBottom: SPACING.lg,
   },
 
-  routeLine: {
-    width: 24,
+  routeRail: {
+    width: 22,
     alignItems: 'center',
-    paddingTop: 4,
+    paddingTop: 5,
+  },
+
+  routeDot: {
+    width: 11,
+    height: 11,
+    borderRadius: 6,
+    borderWidth: 3,
+    backgroundColor: COLORS.white,
   },
 
   pickupDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: COLORS.primary,
-  },
-
-  routeDash: {
-    width: 1,
-    height: 34,
-    backgroundColor: COLORS.border,
-    marginVertical: 3,
+    borderColor: COLORS.primary,
   },
 
   destinationDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 2,
-    backgroundColor: COLORS.text,
+    borderColor: '#E05260',
   },
 
-  routeText: {
+  routeLine: {
+    width: 1,
     flex: 1,
-    marginLeft: SPACING.sm,
+    minHeight: 34,
+    backgroundColor: '#D9DCE4',
+    marginVertical: 3,
+  },
+
+  routeContent: {
+    flex: 1,
+    marginLeft: 8,
+    gap: 16,
+  },
+
+  locationBlock: {
+    minHeight: 40,
   },
 
   locationLabel: {
-    color: COLORS.textLight,
+    fontFamily: FONT_WEIGHT.medium,
     fontSize: 9,
-    fontWeight: FONT_WEIGHT.bold,
+    color: COLORS.textSecondary,
+    letterSpacing: 0.6,
+    marginBottom: 3,
   },
 
-  locationText: {
+  location: {
+    fontFamily: FONT_WEIGHT.medium,
+    fontSize: 14,
     color: COLORS.text,
-    fontSize: FONT_SIZE.sm,
-    fontWeight: FONT_WEIGHT.bold,
-    marginTop: 2,
   },
 
-  locationGap: {
-    height: 16,
-  },
-
-  customerRow: {
+  rideFooter: {
+    borderTopWidth: 1,
+    borderTopColor: '#ECEEF2',
+    paddingTop: SPACING.md,
     flexDirection: 'row',
     alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: COLORS.border,
-    marginTop: SPACING.lg,
-    paddingTop: SPACING.md,
+    justifyContent: 'space-between',
   },
 
-  customerAvatar: {
+  customerBlock: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+
+  avatar: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: COLORS.background,
+    backgroundColor: '#EEF2FF',
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: 9,
   },
 
-  customerInfo: {
-    flex: 1,
-    marginLeft: SPACING.sm,
+  avatarText: {
+    fontFamily: FONT_WEIGHT.bold,
+    fontSize: 14,
+    color: COLORS.primary,
   },
 
   customerLabel: {
-    color: COLORS.textLight,
-    fontSize: 9,
+    fontFamily: FONT_WEIGHT.regular,
+    fontSize: 10,
+    color: COLORS.textSecondary,
   },
 
   customerName: {
+    fontFamily: FONT_WEIGHT.medium,
+    fontSize: 13,
     color: COLORS.text,
-    fontSize: FONT_SIZE.sm,
-    fontWeight: FONT_WEIGHT.bold,
     marginTop: 2,
   },
 
-  amountContainer: {
+  fareBlock: {
     alignItems: 'flex-end',
   },
 
-  amount: {
+  fare: {
+    fontFamily: FONT_WEIGHT.bold,
+    fontSize: 18,
     color: COLORS.primary,
-    fontSize: FONT_SIZE.md,
-    fontWeight: FONT_WEIGHT.extraBold,
   },
 
   distance: {
+    fontFamily: FONT_WEIGHT.regular,
+    fontSize: 11,
     color: COLORS.textSecondary,
-    fontSize: FONT_SIZE.xs,
-    marginTop: 2,
+    marginTop: 3,
   },
 
   emptyCard: {
     backgroundColor: COLORS.white,
-    borderRadius: RADIUS.lg,
-    padding: SPACING.huge,
+    borderRadius: 22,
+    padding: 30,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: '#E8EAF0',
   },
 
   emptyIcon: {
-    fontSize: 40,
+    width: 56,
+    height: 56,
+    borderRadius: 18,
+    backgroundColor: '#EEF2FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 14,
+  },
+
+  emptyIconText: {
+    fontFamily: FONT_WEIGHT.bold,
+    fontSize: 23,
+    color: COLORS.primary,
   },
 
   emptyTitle: {
+    fontFamily: FONT_WEIGHT.bold,
+    fontSize: 16,
     color: COLORS.text,
-    fontSize: FONT_SIZE.lg,
-    fontWeight: FONT_WEIGHT.bold,
-    marginTop: SPACING.md,
   },
 
   emptyText: {
+    fontFamily: FONT_WEIGHT.regular,
+    fontSize: 12,
+    lineHeight: 18,
     color: COLORS.textSecondary,
-    fontSize: FONT_SIZE.sm,
     textAlign: 'center',
-    marginTop: SPACING.xs,
+    marginTop: 6,
   },
 
   bottomNav: {
     position: 'absolute',
-    bottom: 0,
     left: 0,
     right: 0,
-    height: 76,
+    bottom: 0,
+    height: 78,
     backgroundColor: COLORS.white,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: '#E8EAF0',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
+    paddingHorizontal: 8,
   },
 
   navItem: {
     alignItems: 'center',
     justifyContent: 'center',
-    flex: 1,
-  },
-
-  navItemActive: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
+    minWidth: 62,
   },
 
   navIcon: {
-    fontSize: 19,
-    opacity: 0.6,
-  },
-
-  navIconActive: {
-    fontSize: 19,
+    fontFamily: FONT_WEIGHT.bold,
+    fontSize: 20,
+    color: COLORS.textSecondary,
+    marginBottom: 3,
   },
 
   navText: {
-    color: COLORS.textSecondary,
+    fontFamily: FONT_WEIGHT.medium,
     fontSize: 10,
-    marginTop: 3,
+    color: COLORS.textSecondary,
   },
 
-  navTextActive: {
+  activeNavIcon: {
+    width: 34,
+    height: 28,
+    borderRadius: 10,
+    backgroundColor: '#EEF2FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 3,
+  },
+
+  activeNavIconText: {
+    fontFamily: FONT_WEIGHT.bold,
+    fontSize: 17,
     color: COLORS.primary,
+  },
+
+  activeNavText: {
+    fontFamily: FONT_WEIGHT.bold,
     fontSize: 10,
-    fontWeight: FONT_WEIGHT.bold,
-    marginTop: 3,
+    color: COLORS.primary,
   },
 });
