@@ -1,19 +1,20 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ActivityIndicator,
   Image,
   RefreshControl,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useLanguage } from '../i18n';
+import type { RootStackParamList } from '../types/navigation';
 
-import { RootStackParamList } from '../types/navigation';
 import { COLORS } from '../theme/colors';
 import { FONT_SIZE, FONT_WEIGHT } from '../theme/fonts';
 import { RADIUS } from '../theme/dimensions';
@@ -47,7 +48,6 @@ type Vehicle = {
   vehicle_color?: string;
   registration_number?: string;
   license_number?: string;
-  vehicle_image_uri?: string;
 };
 
 type Bank = {
@@ -59,33 +59,27 @@ type Bank = {
 
 type Document = {
   document_type: string;
-  document_uri?: string;
   status?: string;
 };
 
 export default function ProfileScreen({
   navigation,
 }: Props) {
+  const { translations } = useLanguage();
+  const t = translations.profilePage;
+
   const [user, setUser] = useState<User | null>(null);
-  const [vehicle, setVehicle] =
-    useState<Vehicle | null>(null);
-  const [bank, setBank] =
-    useState<Bank | null>(null);
-  const [documents, setDocuments] =
-    useState<Document[]>([]);
+  const [vehicle, setVehicle] = useState<Vehicle | null>(null);
+  const [bank, setBank] = useState<Bank | null>(null);
+  const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] =
-    useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const loadProfile = useCallback(
     async (showLoader = true) => {
       const userId = await getCurrentUserId();
 
       if (!userId) {
-        console.log(
-          '❌ Profile: User ID not found',
-        );
-
         setLoading(false);
         return;
       }
@@ -95,148 +89,52 @@ export default function ProfileScreen({
           setLoading(true);
         }
 
-        console.log(
-          '👤 Loading profile for user:',
-          userId,
-        );
-
         const [
           userResponse,
           vehicleResponse,
           bankResponse,
           documentsResponse,
         ] = await Promise.all([
-          fetch(
-            `${API_BASE_URL}/users/${userId}`,
-          ),
-          fetch(
-            `${API_BASE_URL}/vehicle/${userId}`,
-          ),
-          fetch(
-            `${API_BASE_URL}/bank/${userId}`,
-          ),
-          fetch(
-            `${API_BASE_URL}/documents/${userId}`,
-          ),
+          fetch(`${API_BASE_URL}/users/${userId}`),
+          fetch(`${API_BASE_URL}/vehicle/${userId}`),
+          fetch(`${API_BASE_URL}/bank/${userId}`),
+          fetch(`${API_BASE_URL}/documents/${userId}`),
         ]);
 
-        const userData =
-          await userResponse.json();
+        const userData = await userResponse.json();
+        const vehicleData = await vehicleResponse.json();
+        const bankData = await bankResponse.json();
+        const documentsData = await documentsResponse.json();
 
-        const vehicleData =
-          await vehicleResponse.json();
-
-        const bankData =
-          await bankResponse.json();
-
-        const documentsData =
-          await documentsResponse.json();
-
-        console.log(
-          '👤 User API Response:',
-          JSON.stringify(userData, null, 2),
-        );
-
-        console.log(
-          '🏍️ Vehicle API Response:',
-          JSON.stringify(
-            vehicleData,
-            null,
-            2,
-          ),
-        );
-
-        console.log(
-          '🏦 Bank API Response:',
-          JSON.stringify(
-            bankData,
-            null,
-            2,
-          ),
-        );
-
-        console.log(
-          '📄 Documents API Response:',
-          JSON.stringify(
-            documentsData,
-            null,
-            2,
-          ),
-        );
-
-        // -----------------------------
-        // USER
-        // -----------------------------
-
-        if (
-          userResponse.ok &&
-          userData.success
-        ) {
-          /*
-           * Backend may return:
-           *
-           * {
-           *   success: true,
-           *   user: {...}
-           * }
-           *
-           * OR
-           *
-           * {
-           *   success: true,
-           *   data: {...}
-           * }
-           */
-
+        if (userResponse.ok && userData.success) {
           const apiUser =
             userData.user ||
             userData.data ||
             userData;
 
           setUser({
-            id:
-              apiUser.id ??
-              Number(userId),
-
+            id: apiUser.id ?? Number(userId),
             phone_number:
               apiUser.phone_number ??
               apiUser.phoneNumber ??
               '',
-
-            language:
-              apiUser.language ??
-              'English',
-
+            language: apiUser.language ?? 'English',
             name:
               apiUser.name ??
               apiUser.full_name ??
               apiUser.fullName ??
               '',
-
-            email:
-              apiUser.email ??
-              '',
-
+            email: apiUser.email ?? '',
             selfie_uri:
               apiUser.selfie_uri ??
               apiUser.selfieUri ??
               '',
-
             application_status:
               apiUser.application_status ??
               apiUser.applicationStatus ??
               'new',
           });
-        } else {
-          console.log(
-            '❌ User API failed:',
-            userData,
-          );
         }
-
-        // -----------------------------
-        // VEHICLE
-        // -----------------------------
 
         if (
           vehicleResponse.ok &&
@@ -250,10 +148,6 @@ export default function ProfileScreen({
           );
         }
 
-        // -----------------------------
-        // BANK
-        // -----------------------------
-
         if (
           bankResponse.ok &&
           bankData.success
@@ -266,10 +160,6 @@ export default function ProfileScreen({
           );
         }
 
-        // -----------------------------
-        // DOCUMENTS
-        // -----------------------------
-
         if (
           documentsResponse.ok &&
           documentsData.success
@@ -279,10 +169,7 @@ export default function ProfileScreen({
           );
         }
       } catch (error) {
-        console.log(
-          '❌ Profile loading error:',
-          error,
-        );
+        console.log('❌ Profile loading error:', error);
       } finally {
         setLoading(false);
         setRefreshing(false);
@@ -291,7 +178,7 @@ export default function ProfileScreen({
     [],
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     loadProfile();
   }, [loadProfile]);
 
@@ -300,27 +187,46 @@ export default function ProfileScreen({
     await loadProfile(false);
   };
 
+  const displayName =
+    user?.name?.trim() || 'Partner';
+
+  const displayEmail =
+    user?.email?.trim() || t.notAdded;
+
+  const displayPhone =
+    user?.phone_number ||
+    user?.phoneNumber ||
+    t.phoneNotAvailable;
+
+  const displayLanguage =
+    user?.language || 'English';
+
+  const displaySelfie =
+    user?.selfie_uri ||
+    user?.selfieUri;
+
+  const displayStatus =
+    user?.application_status ||
+    user?.applicationStatus ||
+    t.notAvailable;
+
   const maskAccountNumber = (
     accountNumber?: string,
   ) => {
     if (!accountNumber) {
-      return 'Not added';
+      return t.notAdded;
     }
 
     if (accountNumber.length <= 4) {
       return accountNumber;
     }
 
-    return `•••• •••• ${accountNumber.slice(
-      -4,
-    )}`;
+    return `•••• •••• ${accountNumber.slice(-4)}`;
   };
 
-  const formatStatus = (
-    status?: string,
-  ) => {
+  const formatStatus = (status?: string) => {
     if (!status) {
-      return 'Not available';
+      return t.notAvailable;
     }
 
     return status
@@ -330,9 +236,7 @@ export default function ProfileScreen({
       );
   };
 
-  const getInitials = (
-    name?: string,
-  ) => {
+  const getInitials = (name?: string) => {
     if (!name?.trim()) {
       return 'U';
     }
@@ -348,419 +252,417 @@ export default function ProfileScreen({
 
   if (loading) {
     return (
-      <SafeAreaView
-        style={styles.container}
-      >
-        <View
-          style={styles.loadingContainer}
-        >
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
           <ActivityIndicator
             size="large"
             color={COLORS.primary}
           />
-
-          <Text
-            style={styles.loadingText}
-          >
-            Loading profile...
+          <Text style={styles.loadingText}>
+            {t.loadingProfile}
           </Text>
         </View>
       </SafeAreaView>
     );
   }
 
-  const displayName =
-    user?.name?.trim() || 'Partner';
-
-  const displayEmail =
-    user?.email?.trim() || 'Not added';
-
-  const displayPhone =
-    user?.phone_number ||
-    user?.phoneNumber ||
-    'Phone not available';
-
-  const displayLanguage =
-    user?.language || 'English';
-
-  const displaySelfie =
-    user?.selfie_uri ||
-    user?.selfieUri;
-
-  const displayStatus =
-    user?.application_status ||
-    user?.applicationStatus;
-
   return (
-    <SafeAreaView
-      style={styles.container}
-    >
-      {/* Header */}
+    <SafeAreaView style={styles.container}>
+      <View style={styles.screen}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
+            accessibilityRole="button"
+            accessibilityLabel={t.back}
+          >
+            <Text style={styles.backIcon}>‹</Text>
+          </TouchableOpacity>
 
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() =>
-            navigation.goBack()
-          }
-          style={styles.backButton}
-        >
-          <Text style={styles.backText}>
-            ‹
-          </Text>
-        </TouchableOpacity>
+          <View style={styles.headerText}>
+            <Text style={styles.headerTitle}>
+              {t.title}
+            </Text>
+            <Text style={styles.headerSubtitle}>
+              {t.subtitle}
+            </Text>
+          </View>
 
-        <Text style={styles.headerTitle}>
-          Profile
-        </Text>
+          <View style={styles.headerIcon}>
+            <Text style={styles.headerIconText}>
+              ◯
+            </Text>
+          </View>
+        </View>
 
-        <View
-          style={styles.headerSpacer}
-        />
-      </View>
-
-      <ScrollView
-        showsVerticalScrollIndicator={
-          false
-        }
-        contentContainerStyle={
-          styles.content
-        }
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={COLORS.primary}
-          />
-        }
-      >
-        {/* Profile */}
-
-        <View
-          style={styles.profileSection}
-        >
-          {displaySelfie ? (
-            <Image
-              source={{
-                uri: displaySelfie,
-              }}
-              style={styles.avatarImage}
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.content}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={COLORS.primary}
             />
-          ) : (
-            <View style={styles.avatar}>
+          }
+        >
+          <View style={styles.profileHero}>
+            {displaySelfie ? (
+              <Image
+                source={{ uri: displaySelfie }}
+                style={styles.avatarImage}
+              />
+            ) : (
+              <View style={styles.avatar}>
+                <Text style={styles.avatarText}>
+                  {getInitials(user?.name)}
+                </Text>
+              </View>
+            )}
+
+            <View style={styles.profileHeroInfo}>
               <Text
-                style={styles.avatarText}
+                style={styles.name}
+                numberOfLines={1}
               >
-                {getInitials(
-                  user?.name,
-                )}
+                {displayName}
+              </Text>
+
+              <Text
+                style={styles.phone}
+                numberOfLines={1}
+              >
+                {displayPhone}
+              </Text>
+
+              <View style={styles.statusBadge}>
+                <View style={styles.statusDot} />
+                <Text style={styles.statusText}>
+                  {formatStatus(displayStatus)}
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>
+              {t.personalInformation}
+            </Text>
+
+            <View style={styles.card}>
+              <InfoRow
+                label={t.name}
+                value={displayName}
+              />
+              <InfoRow
+                label={t.phone}
+                value={displayPhone}
+              />
+              <InfoRow
+                label={t.email}
+                value={displayEmail}
+              />
+              <InfoRow
+                label={t.language}
+                value={displayLanguage}
+                last
+              />
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <TouchableOpacity
+              style={styles.sectionHeadingRow}
+              onPress={() =>
+                navigation.navigate(
+                  'VehicleDetails',
+                )
+              }
+              activeOpacity={0.75}
+            >
+              <View>
+                <Text style={styles.sectionTitle}>
+                  {t.vehicle}
+                </Text>
+                <Text style={styles.sectionHint}>
+                  {t.vehicleDetailsNotAvailable}
+                </Text>
+              </View>
+
+              <Text style={styles.arrow}>›</Text>
+            </TouchableOpacity>
+
+            <View style={styles.card}>
+              {vehicle ? (
+                <>
+                  <InfoRow
+                    label={t.type}
+                    value={
+                      vehicle.vehicle_type ||
+                      t.notAvailable
+                    }
+                  />
+                  <InfoRow
+                    label={t.model}
+                    value={
+                      vehicle.vehicle_model ||
+                      t.notAvailable
+                    }
+                  />
+                  <InfoRow
+                    label={t.year}
+                    value={
+                      vehicle.vehicle_year ||
+                      t.notAvailable
+                    }
+                  />
+                  <InfoRow
+                    label={t.color}
+                    value={
+                      vehicle.vehicle_color ||
+                      t.notAvailable
+                    }
+                  />
+                  <InfoRow
+                    label={t.registration}
+                    value={
+                      vehicle.registration_number ||
+                      t.notAvailable
+                    }
+                  />
+                  <InfoRow
+                    label={t.drivingLicence}
+                    value={
+                      vehicle.license_number ||
+                      t.notAvailable
+                    }
+                    last
+                  />
+                </>
+              ) : (
+                <EmptyRow
+                  text={t.vehicleDetailsNotAvailable}
+                />
+              )}
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <TouchableOpacity
+              style={styles.sectionHeadingRow}
+              onPress={() =>
+                navigation.navigate(
+                  'BankDetails',
+                )
+              }
+              activeOpacity={0.75}
+            >
+              <View>
+                <Text style={styles.sectionTitle}>
+                  {t.bankAccount}
+                </Text>
+                <Text style={styles.sectionHint}>
+                  {t.accountNumber}
+                </Text>
+              </View>
+
+              <Text style={styles.arrow}>›</Text>
+            </TouchableOpacity>
+
+            <View style={styles.card}>
+              {bank ? (
+                <>
+                  <InfoRow
+                    label={t.accountHolder}
+                    value={
+                      bank.bank_account_name ||
+                      t.notAvailable
+                    }
+                  />
+                  <InfoRow
+                    label={t.accountNumber}
+                    value={maskAccountNumber(
+                      bank.account_number,
+                    )}
+                  />
+                  <InfoRow
+                    label={t.ifsc}
+                    value={
+                      bank.ifsc_code ||
+                      t.notAvailable
+                    }
+                  />
+                  <InfoRow
+                    label={t.bankName}
+                    value={
+                      bank.bank_name ||
+                      t.notAvailable
+                    }
+                    last
+                  />
+                </>
+              ) : (
+                <EmptyRow
+                  text={t.bankAccountNotAvailable}
+                />
+              )}
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <View style={styles.sectionHeadingRow}>
+              <View>
+                <Text style={styles.sectionTitle}>
+                  {t.documents}
+                </Text>
+                <Text style={styles.sectionHint}>
+                  {documents.length} {t.uploaded}
+                </Text>
+              </View>
+
+              <View style={styles.countBadge}>
+                <Text style={styles.countText}>
+                  {documents.length}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.card}>
+              {documents.length > 0 ? (
+                documents.map((document, index) => (
+                  <View
+                    key={`${document.document_type}-${index}`}
+                    style={[
+                      styles.documentRow,
+                      index === documents.length - 1 &&
+                        styles.lastDocumentRow,
+                    ]}
+                  >
+                    <View style={styles.documentIcon}>
+                      <Text style={styles.documentIconText}>
+                        ✓
+                      </Text>
+                    </View>
+
+                    <View style={styles.documentInfo}>
+                      <Text
+                        style={styles.documentName}
+                        numberOfLines={1}
+                      >
+                        {formatStatus(
+                          document.document_type,
+                        )}
+                      </Text>
+
+                      <Text style={styles.documentStatus}>
+                        {formatStatus(document.status)}
+                      </Text>
+                    </View>
+
+                    <View style={styles.verifiedBadge}>
+                      <Text style={styles.verifiedText}>
+                        ✓
+                      </Text>
+                    </View>
+                  </View>
+                ))
+              ) : (
+                <EmptyRow text={t.noDocumentsFound} />
+              )}
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <View style={styles.sectionHeadingRow}>
+              <View>
+                <Text style={styles.sectionTitle}>
+                  {t.profileVerification}
+                </Text>
+                <Text style={styles.sectionHint}>
+                  {displaySelfie
+                    ? t.selfieUploaded
+                    : t.selfieNotUploaded}
+                </Text>
+              </View>
+
+              <View style={styles.verificationIcon}>
+                <Text style={styles.verificationIconText}>
+                  {displaySelfie ? '✓' : '!'}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.card}>
+              {displaySelfie ? (
+                <Image
+                  source={{ uri: displaySelfie }}
+                  style={styles.selfie}
+                />
+              ) : (
+                <View style={styles.selfieEmpty}>
+                  <View style={styles.selfieEmptyIcon}>
+                    <Text style={styles.selfieEmptyIconText}>
+                      !
+                    </Text>
+                  </View>
+                  <Text style={styles.emptyText}>
+                    {t.selfieNotUploaded}
+                  </Text>
+                </View>
+              )}
+            </View>
+          </View>
+        </ScrollView>
+
+        <View style={styles.bottomNav}>
+          <TouchableOpacity
+            style={styles.navItem}
+            onPress={() =>
+              navigation.navigate('Dashboard')
+            }
+          >
+            <Text style={styles.navIcon}>⌂</Text>
+            <Text style={styles.navText}>
+              {t.dashboard}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.navItem}
+            onPress={() =>
+              navigation.navigate('Rides')
+            }
+          >
+            <Text style={styles.navIcon}>↗</Text>
+            <Text style={styles.navText}>
+              {t.rides}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.navItem}
+            onPress={() =>
+              navigation.navigate('Earnings')
+            }
+          >
+            <Text style={styles.navIcon}>₹</Text>
+            <Text style={styles.navText}>
+              {t.earnings}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.navItem}>
+            <View style={styles.activeNavIcon}>
+              <Text style={styles.activeNavIconText}>
+                ◯
               </Text>
             </View>
-          )}
-
-          <Text style={styles.name}>
-            {displayName}
-          </Text>
-
-          <Text style={styles.phone}>
-            {displayPhone}
-          </Text>
-
-          <View
-            style={styles.statusBadge}
-          >
-            <Text
-              style={styles.statusText}
-            >
-              {formatStatus(
-                displayStatus,
-              )}
+            <Text style={styles.activeNavText}>
+              {t.profile}
             </Text>
-          </View>
+          </TouchableOpacity>
         </View>
-
-        {/* Personal Information */}
-
-        <View style={styles.card}>
-          <Text
-            style={styles.cardTitle}
-          >
-            Personal Information
-          </Text>
-
-          <InfoRow
-            label="Name"
-            value={displayName}
-          />
-
-          <InfoRow
-            label="Phone"
-            value={displayPhone}
-          />
-
-          <InfoRow
-            label="Email"
-            value={displayEmail}
-          />
-
-          <InfoRow
-            label="Language"
-            value={displayLanguage}
-          />
-        </View>
-
-        {/* Vehicle */}
-
-        <TouchableOpacity
-          style={styles.card}
-          onPress={() =>
-            navigation.navigate(
-              'VehicleDetails',
-            )
-          }
-        >
-          <View
-            style={styles.cardHeader}
-          >
-            <Text
-              style={styles.cardTitle}
-            >
-              Vehicle
-            </Text>
-
-            <Text style={styles.arrow}>
-              ›
-            </Text>
-          </View>
-
-          {vehicle ? (
-            <>
-              <InfoRow
-                label="Type"
-                value={
-                  vehicle.vehicle_type ||
-                  'Not available'
-                }
-              />
-
-              <InfoRow
-                label="Model"
-                value={
-                  vehicle.vehicle_model ||
-                  'Not available'
-                }
-              />
-
-              <InfoRow
-                label="Year"
-                value={
-                  vehicle.vehicle_year ||
-                  'Not available'
-                }
-              />
-
-              <InfoRow
-                label="Color"
-                value={
-                  vehicle.vehicle_color ||
-                  'Not available'
-                }
-              />
-
-              <InfoRow
-                label="Registration"
-                value={
-                  vehicle.registration_number ||
-                  'Not available'
-                }
-              />
-
-              <InfoRow
-                label="Driving Licence"
-                value={
-                  vehicle.license_number ||
-                  'Not available'
-                }
-              />
-            </>
-          ) : (
-            <Text
-              style={styles.emptyText}
-            >
-              Vehicle details not available
-            </Text>
-          )}
-        </TouchableOpacity>
-
-        {/* Bank Account */}
-
-        <TouchableOpacity
-          style={styles.card}
-          onPress={() =>
-            navigation.navigate(
-              'BankDetails',
-            )
-          }
-        >
-          <View
-            style={styles.cardHeader}
-          >
-            <Text
-              style={styles.cardTitle}
-            >
-              Bank Account
-            </Text>
-
-            <Text style={styles.arrow}>
-              ›
-            </Text>
-          </View>
-
-          {bank ? (
-            <>
-              <InfoRow
-                label="Account Holder"
-                value={
-                  bank.bank_account_name ||
-                  'Not available'
-                }
-              />
-
-              <InfoRow
-                label="Account Number"
-                value={maskAccountNumber(
-                  bank.account_number,
-                )}
-              />
-
-              <InfoRow
-                label="IFSC"
-                value={
-                  bank.ifsc_code ||
-                  'Not available'
-                }
-              />
-
-              <InfoRow
-                label="Bank Name"
-                value={
-                  bank.bank_name ||
-                  'Not available'
-                }
-              />
-            </>
-          ) : (
-            <Text
-              style={styles.emptyText}
-            >
-              Bank account not available
-            </Text>
-          )}
-        </TouchableOpacity>
-
-        {/* Documents */}
-
-        <View style={styles.card}>
-          <View
-            style={styles.cardHeader}
-          >
-            <Text
-              style={styles.cardTitle}
-            >
-              Documents
-            </Text>
-
-            <Text
-              style={
-                styles.documentCount
-              }
-            >
-              {documents.length} uploaded
-            </Text>
-          </View>
-
-          {documents.length > 0 ? (
-            documents.map(document => (
-              <View
-                key={
-                  document.document_type
-                }
-                style={
-                  styles.documentRow
-                }
-              >
-                <View
-                  style={
-                    styles.documentIcon
-                  }
-                >
-                  <Text
-                    style={styles.iconText}
-                  >
-                    📄
-                  </Text>
-                </View>
-
-                <View
-                  style={
-                    styles.documentInfo
-                  }
-                >
-                  <Text
-                    style={
-                      styles.documentName
-                    }
-                  >
-                    {formatStatus(
-                      document.document_type,
-                    )}
-                  </Text>
-
-                  <Text
-                    style={
-                      styles.documentStatus
-                    }
-                  >
-                    {formatStatus(
-                      document.status,
-                    )}
-                  </Text>
-                </View>
-              </View>
-            ))
-          ) : (
-            <Text
-              style={styles.emptyText}
-            >
-              No documents found
-            </Text>
-          )}
-        </View>
-
-        {/* Selfie */}
-
-        <View style={styles.card}>
-          <Text
-            style={styles.cardTitle}
-          >
-            Profile Verification
-          </Text>
-
-          {displaySelfie ? (
-            <Image
-              source={{
-                uri: displaySelfie,
-              }}
-              style={styles.selfie}
-            />
-          ) : (
-            <Text
-              style={styles.emptyText}
-            >
-              Selfie not uploaded
-            </Text>
-          )}
-        </View>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }
@@ -768,18 +670,45 @@ export default function ProfileScreen({
 function InfoRow({
   label,
   value,
+  last = false,
 }: {
   label: string;
   value: string;
+  last?: boolean;
 }) {
   return (
-    <View style={styles.infoRow}>
-      <Text style={styles.infoLabel}>
+    <View
+      style={[
+        styles.infoRow,
+        last && styles.lastInfoRow,
+      ]}
+    >
+      <Text
+        style={styles.infoLabel}
+        numberOfLines={1}
+      >
         {label}
       </Text>
 
-      <Text style={styles.infoValue}>
+      <Text
+        style={styles.infoValue}
+        numberOfLines={1}
+      >
         {value}
+      </Text>
+    </View>
+  );
+}
+
+function EmptyRow({
+  text,
+}: {
+  text: string;
+}) {
+  return (
+    <View style={styles.emptyRow}>
+      <Text style={styles.emptyText}>
+        {text}
       </Text>
     </View>
   );
@@ -788,8 +717,11 @@ function InfoRow({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor:
-      COLORS.background,
+    backgroundColor: COLORS.background,
+  },
+
+  screen: {
+    flex: 1,
   },
 
   loadingContainer: {
@@ -805,73 +737,107 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    height: 60,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: SPACING.md,
+    paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.sm,
+    paddingBottom: SPACING.md,
   },
 
   backButton: {
-    width: 40,
-    height: 40,
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+    backgroundColor: COLORS.white,
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: SPACING.md,
+    borderWidth: 1,
+    borderColor: '#E8EAF0',
   },
 
-  backText: {
-    fontSize: 36,
+  backIcon: {
+    fontSize: 30,
+    lineHeight: 30,
     color: COLORS.text,
-    lineHeight: 40,
+    marginTop: -3,
+  },
+
+  headerText: {
+    flex: 1,
   },
 
   headerTitle: {
-    flex: 1,
-    textAlign: 'center',
-    fontSize: FONT_SIZE.lg,
+    fontSize: 24,
     fontWeight: FONT_WEIGHT.bold,
     color: COLORS.text,
   },
 
-  headerSpacer: {
-    width: 40,
+  headerSubtitle: {
+    marginTop: 3,
+    fontSize: FONT_SIZE.xs,
+    color: COLORS.textSecondary,
+  },
+
+  headerIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  headerIconText: {
+    fontSize: 19,
+    fontWeight: FONT_WEIGHT.bold,
+    color: COLORS.white,
   },
 
   content: {
-    padding: SPACING.lg,
-    paddingBottom: SPACING.xl,
+    paddingHorizontal: SPACING.lg,
+    paddingBottom: 110,
   },
 
-  profileSection: {
+  profileHero: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: SPACING.lg,
+    backgroundColor: COLORS.white,
+    borderRadius: 24,
+    padding: SPACING.lg,
+    marginBottom: SPACING.xl,
+    borderWidth: 1,
+    borderColor: '#E8EAF0',
   },
 
   avatar: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    backgroundColor:
-      COLORS.primary,
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: SPACING.md,
   },
 
   avatarImage: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    marginBottom: SPACING.md,
+    width: 76,
+    height: 76,
+    borderRadius: 38,
   },
 
   avatarText: {
-    fontSize: FONT_SIZE.xl,
+    fontSize: 25,
     fontWeight: FONT_WEIGHT.bold,
-    color: '#FFFFFF',
+    color: COLORS.white,
+  },
+
+  profileHeroInfo: {
+    flex: 1,
+    marginLeft: SPACING.md,
   },
 
   name: {
-    fontSize: FONT_SIZE.xl,
+    fontSize: 20,
     fontWeight: FONT_WEIGHT.bold,
     color: COLORS.text,
   },
@@ -883,105 +849,138 @@ const styles = StyleSheet.create({
   },
 
   statusBadge: {
-    marginTop: SPACING.sm,
-    paddingHorizontal: SPACING.md,
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 9,
+    paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: RADIUS.lg,
-    backgroundColor:
-      COLORS.primaryLight,
+    borderRadius: 18,
+    backgroundColor: COLORS.primaryLight,
+  },
+
+  statusDot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: COLORS.primary,
+    marginRight: 6,
   },
 
   statusText: {
-    fontSize: FONT_SIZE.sm,
-    fontWeight:
-      FONT_WEIGHT.semibold,
+    fontSize: FONT_SIZE.xs,
+    fontWeight: FONT_WEIGHT.semibold,
     color: COLORS.primary,
   },
 
-  card: {
-    backgroundColor: COLORS.white,
-    borderRadius: RADIUS.lg,
-    padding: SPACING.md,
-    marginBottom: SPACING.md,
+  section: {
+    marginBottom: SPACING.xl,
   },
 
-  cardHeader: {
+  sectionHeadingRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: SPACING.sm,
   },
 
-  cardTitle: {
-    fontSize: FONT_SIZE.md,
+  sectionTitle: {
+    fontSize: 18,
     fontWeight: FONT_WEIGHT.bold,
     color: COLORS.text,
-    marginBottom: SPACING.sm,
+  },
+
+  sectionHint: {
+    marginTop: 3,
+    fontSize: FONT_SIZE.xs,
+    color: COLORS.textSecondary,
   },
 
   arrow: {
     fontSize: 28,
     color: COLORS.textSecondary,
+    marginRight: 3,
   },
 
-  documentCount: {
-    fontSize: FONT_SIZE.sm,
-    color: COLORS.primary,
-    fontWeight:
-      FONT_WEIGHT.semibold,
+  card: {
+    backgroundColor: COLORS.white,
+    borderRadius: 22,
+    paddingHorizontal: SPACING.md,
+    borderWidth: 1,
+    borderColor: '#E8EAF0',
+    overflow: 'hidden',
   },
 
   infoRow: {
-    minHeight: 42,
+    minHeight: 48,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent:
-      'space-between',
+    justifyContent: 'space-between',
     borderBottomWidth: 1,
-    borderBottomColor:
-      '#EEEEEE',
+    borderBottomColor: '#ECEEF2',
+  },
+
+  lastInfoRow: {
+    borderBottomWidth: 0,
   },
 
   infoLabel: {
     flex: 1,
     fontSize: FONT_SIZE.sm,
     color: COLORS.textSecondary,
+    marginRight: 10,
   },
 
   infoValue: {
     flex: 1,
     textAlign: 'right',
     fontSize: FONT_SIZE.sm,
-    fontWeight:
-      FONT_WEIGHT.semibold,
+    fontWeight: FONT_WEIGHT.semibold,
     color: COLORS.text,
   },
 
-  emptyText: {
-    fontSize: FONT_SIZE.sm,
-    color: COLORS.textSecondary,
-    paddingVertical: SPACING.sm,
+  countBadge: {
+    minWidth: 34,
+    height: 30,
+    paddingHorizontal: 9,
+    borderRadius: 12,
+    backgroundColor: COLORS.primaryLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  countText: {
+    fontSize: FONT_SIZE.xs,
+    fontWeight: FONT_WEIGHT.bold,
+    color: COLORS.primary,
   },
 
   documentRow: {
+    minHeight: 62,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: SPACING.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ECEEF2',
+  },
+
+  lastDocumentRow: {
+    borderBottomWidth: 0,
   },
 
   documentIcon: {
-    width: 42,
-    height: 42,
-    borderRadius: RADIUS.md,
-    backgroundColor:
-      COLORS.primaryLight,
+    width: 40,
+    height: 40,
+    borderRadius: 13,
+    backgroundColor: COLORS.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: SPACING.sm,
+    marginRight: 11,
   },
 
-  iconText: {
-    fontSize: 20,
+  documentIconText: {
+    fontSize: 16,
+    fontWeight: FONT_WEIGHT.bold,
+    color: COLORS.primary,
   },
 
   documentInfo: {
@@ -990,8 +989,7 @@ const styles = StyleSheet.create({
 
   documentName: {
     fontSize: FONT_SIZE.sm,
-    fontWeight:
-      FONT_WEIGHT.semibold,
+    fontWeight: FONT_WEIGHT.semibold,
     color: COLORS.text,
   },
 
@@ -1001,10 +999,129 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
   },
 
+  verifiedBadge: {
+    width: 25,
+    height: 25,
+    borderRadius: 13,
+    backgroundColor: '#E9F8EF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 8,
+  },
+
+  verifiedText: {
+    fontSize: 12,
+    fontWeight: FONT_WEIGHT.bold,
+    color: '#1E8E4D',
+  },
+
+  emptyRow: {
+    minHeight: 58,
+    justifyContent: 'center',
+  },
+
+  emptyText: {
+    fontSize: FONT_SIZE.sm,
+    color: COLORS.textSecondary,
+  },
+
+  verificationIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: 12,
+    backgroundColor: COLORS.primaryLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  verificationIconText: {
+    fontSize: 16,
+    fontWeight: FONT_WEIGHT.bold,
+    color: COLORS.primary,
+  },
+
   selfie: {
     width: '100%',
-    height: 220,
-    borderRadius: RADIUS.md,
-    marginTop: SPACING.sm,
+    height: 210,
+    borderRadius: 16,
+    marginVertical: SPACING.md,
+  },
+
+  selfieEmpty: {
+    minHeight: 150,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  selfieEmptyIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    backgroundColor: '#FFF4DF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
+
+  selfieEmptyIconText: {
+    fontSize: 20,
+    fontWeight: FONT_WEIGHT.bold,
+    color: '#B77900',
+  },
+
+  bottomNav: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 78,
+    backgroundColor: COLORS.white,
+    borderTopWidth: 1,
+    borderTopColor: '#E8EAF0',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    paddingHorizontal: 8,
+  },
+
+  navItem: {
+    minWidth: 62,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  navIcon: {
+    fontSize: 20,
+    fontWeight: FONT_WEIGHT.bold,
+    color: COLORS.textSecondary,
+    marginBottom: 3,
+  },
+
+  navText: {
+    fontSize: 10,
+    fontWeight: FONT_WEIGHT.medium,
+    color: COLORS.textSecondary,
+  },
+
+  activeNavIcon: {
+    width: 34,
+    height: 28,
+    borderRadius: 10,
+    backgroundColor: COLORS.primaryLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 3,
+  },
+
+  activeNavIconText: {
+    fontSize: 16,
+    fontWeight: FONT_WEIGHT.bold,
+    color: COLORS.primary,
+  },
+
+  activeNavText: {
+    fontSize: 10,
+    fontWeight: FONT_WEIGHT.bold,
+    color: COLORS.primary,
   },
 });

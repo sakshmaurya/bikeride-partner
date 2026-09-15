@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Alert,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -35,15 +36,7 @@ type Props = NativeStackScreenProps<
 export default function ProfileDetailsScreen({
   navigation,
 }: Props) {
-  // ========================================
-  // LANGUAGE
-  // ========================================
-
   const { translations: t, language } = useLanguage();
-
-  // ========================================
-  // STATE
-  // ========================================
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -54,9 +47,8 @@ export default function ProfileDetailsScreen({
   const [nameError, setNameError] = useState('');
   const [emailError, setEmailError] = useState('');
 
-  // ========================================
-  // LOAD PROFILE
-  // ========================================
+  const [nameFocused, setNameFocused] = useState(false);
+  const [emailFocused, setEmailFocused] = useState(false);
 
   useEffect(() => {
     loadProfile();
@@ -114,10 +106,6 @@ export default function ProfileDetailsScreen({
     }
   };
 
-  // ========================================
-  // VALIDATION
-  // ========================================
-
   const validateForm = () => {
     let valid = true;
 
@@ -127,36 +115,25 @@ export default function ProfileDetailsScreen({
     const trimmedName = name.trim();
     const trimmedEmail = email.trim();
 
-    // ======================================
-    // NAME VALIDATION
-    // ======================================
-
     if (!trimmedName) {
       setNameError(
         t.profile?.nameRequired ||
           'Please enter your full name',
       );
-
       valid = false;
     } else if (trimmedName.length < 2) {
       setNameError(
         t.profile?.nameMinLength ||
           'Name must be at least 2 characters',
       );
-
       valid = false;
     }
-
-    // ======================================
-    // EMAIL VALIDATION
-    // ======================================
 
     if (!trimmedEmail) {
       setEmailError(
         t.profile?.emailRequired ||
           'Please enter your email address',
       );
-
       valid = false;
     } else {
       const emailRegex =
@@ -167,17 +144,12 @@ export default function ProfileDetailsScreen({
           t.profile?.emailInvalid ||
             'Please enter a valid email address',
         );
-
         valid = false;
       }
     }
 
     return valid;
   };
-
-  // ========================================
-  // SAVE PROFILE
-  // ========================================
 
   const handleContinue = async () => {
     Keyboard.dismiss();
@@ -204,38 +176,25 @@ export default function ProfileDetailsScreen({
       console.log('📧 Email:', email.trim());
       console.log('🌐 Language:', language);
 
-      // ======================================
-      // USER ID CHECK
-      // ======================================
-
       if (!userId) {
         Alert.alert(
           t.common?.error || 'Error',
           t.profile?.userIdNotFound ||
             'User ID not found. Please login again.',
         );
-
         return;
       }
-
-      // ======================================
-      // SAVE API
-      // ======================================
 
       const response = await fetch(
         `${API_BASE_URL}/users/${userId}`,
         {
           method: 'PUT',
-
           headers: {
             'Content-Type': 'application/json',
           },
-
           body: JSON.stringify({
             name: name.trim(),
             email: email.trim(),
-
-            // Send currently selected language
             language,
           }),
         },
@@ -243,15 +202,9 @@ export default function ProfileDetailsScreen({
 
       const data = await response.json();
 
-      console.log(
-        '📥 Save response:',
-        data,
-      );
+      console.log('📥 Save response:', data);
 
-      if (
-        !response.ok ||
-        !data.success
-      ) {
+      if (!response.ok || !data.success) {
         throw new Error(
           data.message ||
             t.profile?.saveProfileError ||
@@ -269,47 +222,29 @@ export default function ProfileDetailsScreen({
         '========================================',
       );
 
-      // ======================================
-      // SUCCESS ALERT
-      // ======================================
-
       Alert.alert(
         t.profile?.profileSaved ||
           'Profile Saved',
-
         t.profile?.profileSavedMessage ||
           'Your profile details have been saved successfully.',
-
         [
           {
             text:
               t.profile?.continue ||
               'Continue',
-
             onPress: async () => {
               try {
                 const currentUserId =
                   await getCurrentUserId();
 
-                // ==================================
-                // USER ID NOT FOUND
-                // ==================================
-
                 if (!currentUserId) {
-                  navigation.replace(
-                    'Documents',
-                  );
-
+                  navigation.replace('Documents');
                   return;
                 }
 
                 console.log(
                   '🔍 Checking registration status...',
                 );
-
-                // ==================================
-                // CHECK ONBOARDING STATUS
-                // ==================================
 
                 const onboardingResponse =
                   await fetch(
@@ -324,10 +259,6 @@ export default function ProfileDetailsScreen({
                   onboardingData,
                 );
 
-                // ==================================
-                // REGISTRATION COMPLETED
-                // ==================================
-
                 if (
                   onboardingResponse.ok &&
                   onboardingData.success &&
@@ -337,23 +268,13 @@ export default function ProfileDetailsScreen({
                     '✅ Registration already completed',
                   );
 
-                  navigation.replace(
-                    'Dashboard',
-                  );
-                }
-
-                // ==================================
-                // CONTINUE ONBOARDING
-                // ==================================
-
-                else {
+                  navigation.replace('Dashboard');
+                } else {
                   console.log(
                     '➡️ Continuing onboarding → Documents',
                   );
 
-                  navigation.replace(
-                    'Documents',
-                  );
+                  navigation.replace('Documents');
                 }
               } catch (error) {
                 console.error(
@@ -361,13 +282,7 @@ export default function ProfileDetailsScreen({
                   error,
                 );
 
-                // ==================================
-                // FALLBACK
-                // ==================================
-
-                navigation.replace(
-                  'Documents',
-                );
+                navigation.replace('Documents');
               }
             },
           },
@@ -385,12 +300,10 @@ export default function ProfileDetailsScreen({
           t.profile?.saveProfileError ||
           'Unable to save profile. Please try again.',
       );
+    } finally {
+      setSaving(false);
     }
   };
-
-  // ========================================
-  // LOADING SCREEN
-  // ========================================
 
   if (loading) {
     return (
@@ -403,23 +316,37 @@ export default function ProfileDetailsScreen({
           onBack={() => navigation.goBack()}
         />
 
-        <View
-          style={styles.loadingContainer}
-        >
-          <Text
-            style={styles.loadingText}
-          >
-            {t.profile?.loading ||
-              'Loading profile...'}
-          </Text>
+        <View style={styles.loadingContainer}>
+          <View style={styles.loadingCard}>
+            <View style={styles.loadingCircle}>
+              <Text style={styles.loadingIcon}>
+                👤
+              </Text>
+            </View>
+
+            <Text style={styles.loadingTitle}>
+              {t.profile?.loading ||
+                'Loading profile...'}
+            </Text>
+
+            <View style={styles.loadingLine} />
+          </View>
         </View>
       </SafeAreaView>
     );
   }
 
-  // ========================================
-  // MAIN SCREEN
-  // ========================================
+  const nameInputStyle = [
+    styles.inputWrapper,
+    nameFocused && styles.inputWrapperFocused,
+    nameError && styles.inputWrapperError,
+  ];
+
+  const emailInputStyle = [
+    styles.inputWrapper,
+    emailFocused && styles.inputWrapperFocused,
+    emailError && styles.inputWrapperError,
+  ];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -431,10 +358,6 @@ export default function ProfileDetailsScreen({
             : undefined
         }
       >
-        {/* ================================= */}
-        {/* HEADER */}
-        {/* ================================= */}
-
         <ScreenHeader
           title={
             t.profile?.title ||
@@ -444,83 +367,95 @@ export default function ProfileDetailsScreen({
         />
 
         <ScrollView
-          contentContainerStyle={
-            styles.content
-          }
+          contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* ================================= */}
-          {/* INTRO CARD */}
-          {/* ================================= */}
+          {/* PROFILE INTRO */}
 
-          <View style={styles.introCard}>
-            <View
-              style={styles.profileIcon}
-            >
-              <Text
-                style={
-                  styles.profileIconText
-                }
-              >
-                👤
-              </Text>
+          <View style={styles.heroCard}>
+            <View style={styles.heroAccent} />
+
+            <View style={styles.heroContent}>
+              <View style={styles.profileIcon}>
+                <Text style={styles.profileIconText}>
+                  👤
+                </Text>
+              </View>
+
+              <View style={styles.heroText}>
+                <Text style={styles.heroTitle}>
+                  {t.profile?.description ||
+                    'Complete your profile'}
+                </Text>
+
+                <Text style={styles.heroDescription}>
+                  {t.profile?.description ||
+                    'Add your basic details to continue with your BikeRide Partner registration.'}
+                </Text>
+              </View>
             </View>
 
-            <View
-              style={styles.introText}
-            >
-              <Text style={styles.title}>
-                {t.profile?.description ||
-                  'Complete your profile'}
+            <View style={styles.progressRow}>
+              <View style={styles.progressDotActive}>
+                <Text style={styles.progressCheck}>
+                  ✓
+                </Text>
+              </View>
+
+              <View style={styles.progressLineActive} />
+
+              <View style={styles.progressDot}>
+                <Text style={styles.progressNumber}>
+                  2
+                </Text>
+              </View>
+
+              <View style={styles.progressLine} />
+
+              <View style={styles.progressDot}>
+                <Text style={styles.progressNumber}>
+                  3
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* SECTION HEADER */}
+
+          <View style={styles.sectionHeader}>
+            <View style={styles.sectionIndicator} />
+
+            <View>
+              <Text style={styles.sectionTitle}>
+                {t.profile?.personalInformation ||
+                  'Personal Information'}
               </Text>
 
-              <Text
-                style={styles.description}
-              >
-                {t.profile?.description ||
-                  'Add your basic details to continue with your BikeRide Partner registration.'}
+              <Text style={styles.sectionSubtitle}>
+                {t.profile?.infoText ||
+                  'Enter your details to continue'}
               </Text>
             </View>
           </View>
 
-          {/* ================================= */}
-          {/* PERSONAL INFORMATION */}
-          {/* ================================= */}
-
-          <Text
-            style={styles.sectionTitle}
-          >
-            {t.profile?.personalInformation ||
-              'Personal Information'}
-          </Text>
+          {/* FORM */}
 
           <View style={styles.formCard}>
-            {/* ================================= */}
             {/* NAME */}
-            {/* ================================= */}
 
-            <View
-              style={styles.inputGroup}
-            >
+            <View style={styles.inputGroup}>
               <Text style={styles.label}>
                 {t.profile?.fullName ||
                   'Full Name'}
               </Text>
 
-              <View
-                style={[
-                  styles.inputWrapper,
-                  nameError
-                    ? styles.inputWrapperError
-                    : null,
-                ]}
-              >
-                <Text
-                  style={styles.inputIcon}
-                >
-                  👤
-                </Text>
+              <View style={nameInputStyle}>
+                <View style={styles.inputIconContainer}>
+                  <Text style={styles.inputIcon}>
+                    👤
+                  </Text>
+                </View>
 
                 <TextInput
                   value={name}
@@ -528,6 +463,8 @@ export default function ProfileDetailsScreen({
                     setName(text);
                     setNameError('');
                   }}
+                  onFocus={() => setNameFocused(true)}
+                  onBlur={() => setNameFocused(false)}
                   placeholder={
                     t.profile?.namePlaceholder ||
                     'Enter your full name'
@@ -539,43 +476,37 @@ export default function ProfileDetailsScreen({
                   autoCapitalize="words"
                   autoCorrect={false}
                   editable={!saving}
+                  returnKeyType="next"
                 />
               </View>
 
               {nameError ? (
-                <Text
-                  style={styles.errorText}
-                >
-                  {nameError}
-                </Text>
+                <View style={styles.errorRow}>
+                  <Text style={styles.errorIcon}>
+                    !
+                  </Text>
+
+                  <Text style={styles.errorText}>
+                    {nameError}
+                  </Text>
+                </View>
               ) : null}
             </View>
 
-            {/* ================================= */}
             {/* EMAIL */}
-            {/* ================================= */}
 
-            <View
-              style={styles.inputGroup}
-            >
+            <View style={styles.inputGroupLast}>
               <Text style={styles.label}>
                 {t.profile?.emailAddress ||
                   'Email Address'}
               </Text>
 
-              <View
-                style={[
-                  styles.inputWrapper,
-                  emailError
-                    ? styles.inputWrapperError
-                    : null,
-                ]}
-              >
-                <Text
-                  style={styles.inputIcon}
-                >
-                  ✉️
-                </Text>
+              <View style={emailInputStyle}>
+                <View style={styles.inputIconContainer}>
+                  <Text style={styles.inputIcon}>
+                    ✉
+                  </Text>
+                </View>
 
                 <TextInput
                   value={email}
@@ -583,6 +514,8 @@ export default function ProfileDetailsScreen({
                     setEmail(text);
                     setEmailError('');
                   }}
+                  onFocus={() => setEmailFocused(true)}
+                  onBlur={() => setEmailFocused(false)}
                   placeholder={
                     t.profile?.emailPlaceholder ||
                     'Enter your email address'
@@ -595,45 +528,50 @@ export default function ProfileDetailsScreen({
                   autoCapitalize="none"
                   autoCorrect={false}
                   editable={!saving}
+                  returnKeyType="done"
+                  onSubmitEditing={handleContinue}
                 />
               </View>
 
               {emailError ? (
-                <Text
-                  style={styles.errorText}
-                >
-                  {emailError}
-                </Text>
+                <View style={styles.errorRow}>
+                  <Text style={styles.errorIcon}>
+                    !
+                  </Text>
+
+                  <Text style={styles.errorText}>
+                    {emailError}
+                  </Text>
+                </View>
               ) : null}
             </View>
           </View>
 
-          {/* ================================= */}
-          {/* INFO CARD */}
-          {/* ================================= */}
+          {/* PRIVACY / INFO */}
 
           <View style={styles.infoCard}>
-            <Text
-              style={styles.infoIcon}
-            >
-              ✓
-            </Text>
+            <View style={styles.infoIconContainer}>
+              <Text style={styles.infoIcon}>
+                ✓
+              </Text>
+            </View>
 
-            <Text
-              style={styles.infoText}
-            >
-              {t.profile?.infoText ||
-                'Make sure your name and email address are correct. These details will be used for your partner account.'}
-            </Text>
+            <View style={styles.infoContent}>
+              <Text style={styles.infoTitle}>
+                {t.profile?.profileSaved ||
+                  'Profile Information'}
+              </Text>
+
+              <Text style={styles.infoText}>
+                {t.profile?.infoText ||
+                  'Make sure your name and email address are correct. These details will be used for your partner account.'}
+              </Text>
+            </View>
           </View>
 
-          {/* ================================= */}
-          {/* CONTINUE BUTTON */}
-          {/* ================================= */}
+          {/* CONTINUE */}
 
-          <View
-            style={styles.buttonContainer}
-          >
+          <View style={styles.buttonContainer}>
             <PrimaryButton
               title={
                 t.profile?.continue ||
@@ -643,15 +581,16 @@ export default function ProfileDetailsScreen({
               loading={saving}
             />
           </View>
+
+          <Text style={styles.footerText}>
+            {t.profile?.description ||
+              'Your information is securely stored.'}
+          </Text>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
-
-// ========================================
-// STYLES
-// ========================================
 
 const styles = StyleSheet.create({
   container: {
@@ -665,32 +604,38 @@ const styles = StyleSheet.create({
 
   content: {
     flexGrow: 1,
-    padding: SPACING.xxl,
-    paddingBottom: SPACING.huge,
+    paddingHorizontal: SPACING.xxl,
+    paddingTop: SPACING.md,
+    paddingBottom: 36,
   },
 
-  // ======================================
-  // INTRO
-  // ======================================
+  // HERO
 
-  introCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  heroCard: {
     backgroundColor: COLORS.white,
     borderRadius: RADIUS.lg,
     borderWidth: 1,
     borderColor: COLORS.border,
+    overflow: 'hidden',
+    marginBottom: SPACING.xxl,
+  },
+
+  heroAccent: {
+    height: 5,
+    backgroundColor: COLORS.primary,
+  },
+
+  heroContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: SPACING.lg,
-    marginTop: SPACING.md,
-    marginBottom: SPACING.xl,
   },
 
   profileIcon: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor:
-      COLORS.primaryLight,
+    width: 66,
+    height: 66,
+    borderRadius: 33,
+    backgroundColor: COLORS.primaryLight,
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: SPACING.lg,
@@ -700,38 +645,105 @@ const styles = StyleSheet.create({
     fontSize: 30,
   },
 
-  introText: {
+  heroText: {
     flex: 1,
   },
 
-  title: {
+  heroTitle: {
     color: COLORS.text,
     fontSize: FONT_SIZE.lg,
-    fontWeight:
-      FONT_WEIGHT.extraBold,
-    marginBottom: SPACING.xs,
+    fontWeight: FONT_WEIGHT.extraBold,
+    marginBottom: 6,
   },
 
-  description: {
+  heroDescription: {
     color: COLORS.textSecondary,
     fontSize: FONT_SIZE.sm,
     lineHeight: 20,
   },
 
-  // ======================================
+  progressRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.lg,
+    paddingBottom: SPACING.lg,
+  },
+
+  progressDotActive: {
+    width: 27,
+    height: 27,
+    borderRadius: 14,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  progressDot: {
+    width: 27,
+    height: 27,
+    borderRadius: 14,
+    backgroundColor: COLORS.background,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  progressCheck: {
+    color: COLORS.white,
+    fontSize: 13,
+    fontWeight: FONT_WEIGHT.bold,
+  },
+
+  progressNumber: {
+    color: COLORS.textSecondary,
+    fontSize: 12,
+    fontWeight: FONT_WEIGHT.bold,
+  },
+
+  progressLineActive: {
+    flex: 1,
+    height: 2,
+    backgroundColor: COLORS.primary,
+    marginHorizontal: 7,
+  },
+
+  progressLine: {
+    flex: 1,
+    height: 2,
+    backgroundColor: COLORS.border,
+    marginHorizontal: 7,
+  },
+
   // SECTION
-  // ======================================
+
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: SPACING.md,
+  },
+
+  sectionIndicator: {
+    width: 4,
+    height: 36,
+    borderRadius: 2,
+    backgroundColor: COLORS.primary,
+    marginRight: SPACING.md,
+  },
 
   sectionTitle: {
     color: COLORS.text,
     fontSize: FONT_SIZE.lg,
     fontWeight: FONT_WEIGHT.bold,
-    marginBottom: SPACING.md,
   },
 
-  // ======================================
-  // FORM CARD
-  // ======================================
+  sectionSubtitle: {
+    color: COLORS.textSecondary,
+    fontSize: FONT_SIZE.xs,
+    marginTop: 3,
+  },
+
+  // FORM
 
   formCard: {
     backgroundColor: COLORS.white,
@@ -745,6 +757,10 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.xl,
   },
 
+  inputGroupLast: {
+    marginBottom: 0,
+  },
+
   label: {
     color: COLORS.text,
     fontSize: FONT_SIZE.sm,
@@ -753,7 +769,7 @@ const styles = StyleSheet.create({
   },
 
   inputWrapper: {
-    height: 56,
+    minHeight: 58,
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
@@ -763,84 +779,165 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.md,
   },
 
+  inputWrapperFocused: {
+    borderColor: COLORS.primary,
+    backgroundColor: COLORS.white,
+  },
+
   inputWrapperError: {
     borderColor: '#E53935',
   },
 
-  inputIcon: {
-    fontSize: 19,
+  inputIconContainer: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: COLORS.primaryLight,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: SPACING.sm,
+  },
+
+  inputIcon: {
+    fontSize: 17,
   },
 
   input: {
     flex: 1,
-    height: 54,
+    minHeight: 56,
     color: COLORS.text,
     fontSize: FONT_SIZE.md,
     paddingHorizontal: SPACING.xs,
+    paddingVertical: 0,
+  },
+
+  errorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 7,
+  },
+
+  errorIcon: {
+    width: 17,
+    height: 17,
+    borderRadius: 9,
+    backgroundColor: '#E53935',
+    color: COLORS.white,
+    textAlign: 'center',
+    lineHeight: 17,
+    fontSize: 11,
+    fontWeight: FONT_WEIGHT.bold,
+    marginRight: 6,
+    overflow: 'hidden',
   },
 
   errorText: {
+    flex: 1,
     color: '#E53935',
-    fontSize: FONT_SIZE.sm,
-    marginTop: SPACING.xs,
+    fontSize: FONT_SIZE.xs,
   },
 
-  // ======================================
-  // INFO CARD
-  // ======================================
+  // INFO
 
   infoCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor:
-      COLORS.primaryLight,
+    backgroundColor: COLORS.primaryLight,
     borderRadius: RADIUS.md,
     padding: SPACING.lg,
     marginTop: SPACING.xl,
   },
 
-  infoIcon: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+  infoIconContainer: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     backgroundColor: COLORS.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: SPACING.md,
+  },
+
+  infoIcon: {
     color: COLORS.white,
-    textAlign: 'center',
-    lineHeight: 24,
     fontSize: FONT_SIZE.sm,
     fontWeight: FONT_WEIGHT.bold,
-    marginRight: SPACING.md,
-    overflow: 'hidden',
+  },
+
+  infoContent: {
+    flex: 1,
+  },
+
+  infoTitle: {
+    color: COLORS.text,
+    fontSize: FONT_SIZE.sm,
+    fontWeight: FONT_WEIGHT.bold,
+    marginBottom: 4,
   },
 
   infoText: {
-    flex: 1,
     color: COLORS.textSecondary,
     fontSize: FONT_SIZE.sm,
     lineHeight: 20,
   },
 
-  // ======================================
   // BUTTON
-  // ======================================
 
   buttonContainer: {
     marginTop: SPACING.xxl,
   },
 
-  // ======================================
+  footerText: {
+    textAlign: 'center',
+    color: COLORS.textLight,
+    fontSize: FONT_SIZE.xs,
+    marginTop: SPACING.lg,
+  },
+
   // LOADING
-  // ======================================
 
   loadingContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: SPACING.xxl,
   },
 
-  loadingText: {
-    color: COLORS.textSecondary,
+  loadingCard: {
+    width: '100%',
+    backgroundColor: COLORS.white,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    alignItems: 'center',
+    padding: SPACING.xxl,
+  },
+
+  loadingCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: COLORS.primaryLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: SPACING.lg,
+  },
+
+  loadingIcon: {
+    fontSize: 28,
+  },
+
+  loadingTitle: {
+    color: COLORS.text,
     fontSize: FONT_SIZE.md,
+    fontWeight: FONT_WEIGHT.bold,
+  },
+
+  loadingLine: {
+    width: 80,
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: COLORS.primary,
+    marginTop: SPACING.lg,
   },
 });
